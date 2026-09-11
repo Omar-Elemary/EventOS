@@ -13,3 +13,8 @@ frontend/.env
 mobile/.expo/
 .vercel/
 frontend/.vercel/
+.vercel
+.env.local
+.env
+backend/.env
+frontend/.env

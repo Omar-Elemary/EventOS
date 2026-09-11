@@ -1,6 +1,13 @@
 from functools import lru_cache
+import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _default_database_url() -> str:
+    if os.getenv("VERCEL"):
+        return "sqlite+aiosqlite:///./eventos.sqlite"
+    return "postgresql+asyncpg://eventos:eventos@localhost:5432/eventos"
 
 
 class Settings(BaseSettings):
@@ -12,7 +19,7 @@ class Settings(BaseSettings):
     app_name: str = "EventOS"
     debug: bool = False
 
-    database_url: str = "postgresql+asyncpg://eventos:eventos@localhost:5432/eventos"
+    database_url: str = _default_database_url()
     redis_url: str = "redis://localhost:6379/0"
 
     llm_provider: str = "mock"
