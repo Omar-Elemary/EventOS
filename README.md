@@ -156,7 +156,7 @@ The graph does not silently substitute mock data when live mode is on. If a live
 Set in `.env` (never sent to the browser):
 
 ```
-LLM_PROVIDER=   # mock | openai_compatible | gemini
+LLM_PROVIDER=   # mock | groq | openai_compatible | gemini
 LLM_MODEL=
 LLM_API_KEY=
 LLM_BASE_URL=

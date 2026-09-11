@@ -34,10 +34,10 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://eventos:eventos@postgres:5432/eventos
       REDIS_URL: redis://redis:6379/0
-      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
-      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-oss-120b}
       LLM_API_KEY: ${LLM_API_KEY:-}
-      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.groq.com/openai/v1}
       USE_MOCK_TOOLS: ${USE_MOCK_TOOLS:-true}
       SEARCH_API_KEY: ${SEARCH_API_KEY:-}
       MAX_ITERATIONS: ${MAX_ITERATIONS:-5}

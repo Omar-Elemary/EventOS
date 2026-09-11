@@ -11,6 +11,10 @@ from app.llm.openai_compatible import OpenAICompatibleProvider
 log = structlog.get_logger()
 
 
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+GROQ_MODEL = "openai/gpt-oss-120b"
+
+
 @lru_cache
 def get_llm_provider() -> LLMProvider:
     settings = get_settings()
@@ -25,6 +29,19 @@ def get_llm_provider() -> LLMProvider:
             api_key=settings.llm_api_key,
             model=settings.llm_model,
             base_url=settings.llm_base_url,
+            timeout=settings.llm_timeout,
+        )
+    if provider in {"groq"}:
+        model = settings.llm_model.strip()
+        if not model or "gemini" in model or "gpt-4o" in model:
+            model = GROQ_MODEL
+        base = (settings.llm_base_url or "").rstrip("/")
+        if not base or "openai.com" in base or "googleapis" in base:
+            base = GROQ_BASE_URL
+        return OpenAICompatibleProvider(
+            api_key=settings.llm_api_key,
+            model=model,
+            base_url=base,
             timeout=settings.llm_timeout,
         )
     return OpenAICompatibleProvider(
