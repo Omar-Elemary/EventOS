@@ -16,3 +16,13 @@ def test_normalize_pooler_disables_statement_cache():
     )
     assert "postgresql+asyncpg://" in dsn
     assert args.get("statement_cache_size") == 0
+
+
+def test_normalize_supabase_pooler_url():
+    dsn, args = normalize_database_url(
+        "postgresql://eventos.abc:pass@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require"
+    )
+    assert dsn.startswith("postgresql+asyncpg://")
+    assert "sslmode" not in dsn
+    assert args.get("ssl") is True
+    assert args.get("statement_cache_size") == 0

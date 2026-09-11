@@ -56,7 +56,7 @@ def normalize_database_url(url: str) -> tuple[str, dict]:
     sslmode = (query.pop("sslmode", None) or "").lower()
     query.pop("channel_binding", None)
     host = parts.hostname or ""
-    if sslmode in {"require", "verify-ca", "verify-full", "prefer"} or "neon.tech" in host:
+    if sslmode in {"require", "verify-ca", "verify-full", "prefer"} or "neon.tech" in host or "supabase.co" in host or "supabase.com" in host:
         connect_args["ssl"] = True
     if "pooler" in host or query.get("pgbouncer") == "true":
         connect_args["statement_cache_size"] = 0
