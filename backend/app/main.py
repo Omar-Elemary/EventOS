@@ -28,7 +28,12 @@ async def lifespan(app: FastAPI):
     if engine is not None:
         async with engine.begin() as conn:
             if conn.dialect.name == "postgresql":
-                await conn.exec_driver_sql("CREATE EXTENSION IF NOT EXISTS vector")
+                try:
+                    await conn.exec_driver_sql("CREATE EXTENSION IF NOT EXISTS vector")
+                except Exception:
+                    import structlog
+
+                    structlog.get_logger().warning("pgvector_extension_skipped")
             await conn.run_sync(Base.metadata.create_all)
             await conn.run_sync(_ensure_columns)
         try:

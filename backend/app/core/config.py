@@ -1,6 +1,7 @@
 from functools import lru_cache
 import os
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,7 +20,15 @@ class Settings(BaseSettings):
     app_name: str = "EventOS"
     debug: bool = False
 
-    database_url: str = _default_database_url()
+    database_url: str = Field(
+        default_factory=_default_database_url,
+        validation_alias=AliasChoices(
+            "DATABASE_URL_UNPOOLED",
+            "POSTGRES_URL_NON_POOLING",
+            "DATABASE_URL",
+            "POSTGRES_URL",
+        ),
+    )
     redis_url: str = "redis://localhost:6379/0"
 
     llm_provider: str = "mock"
