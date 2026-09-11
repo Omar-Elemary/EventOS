@@ -45,7 +45,7 @@ export function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-between px-5 py-8">
+    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-between px-5 py-8">
       <div className="flex justify-end">
         <button
           className="font-mono text-xs font-black uppercase underline"

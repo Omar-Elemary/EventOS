@@ -71,7 +71,12 @@ export function PlannerPage() {
 
   useEffect(() => {
     if (!eventId) return;
-    const es = new EventSource(apiUrl(`/api/events/${eventId}/agents/stream`));
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(apiUrl(`/api/events/${eventId}/agents/stream`));
+    } catch {
+      return;
+    }
     const push = (e: MessageEvent) => {
       try {
         const data = JSON.parse(e.data);
@@ -90,7 +95,17 @@ export function PlannerPage() {
       es.addEventListener(name, push);
     }
     es.onmessage = push;
-    return () => es.close();
+    es.onerror = () => {
+      es?.close();
+    };
+    const onHide = () => {
+      if (document.hidden) es?.close();
+    };
+    document.addEventListener("visibilitychange", onHide);
+    return () => {
+      document.removeEventListener("visibilitychange", onHide);
+      es?.close();
+    };
   }, [eventId]);
 
   async function send(text: string, actionId?: string) {

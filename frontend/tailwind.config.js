@@ -23,10 +23,10 @@ export default {
         "neo-black": "#121212",
       },
       fontFamily: {
-        sans: ["Public Sans", "system-ui", "sans-serif"],
-        display: ["Space Grotesk", "sans-serif"],
-        grotesk: ["Space Grotesk", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+        sans: ["ui-sans-serif", "system-ui", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
+        display: ["ui-sans-serif", "system-ui", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
+        grotesk: ["ui-sans-serif", "system-ui", "Segoe UI", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       boxShadow: {
         "nb-sm": "2px 2px 0 0 #000",

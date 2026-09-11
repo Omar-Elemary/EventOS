@@ -16,7 +16,7 @@ export function SplashPage() {
   }, [nav]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-nb-magenta px-6 text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-nb-magenta px-6 text-white">
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-black bg-nb-cyan text-black shadow-nb-xl pulse-neo">
         <Sparkles size={36} />
       </div>

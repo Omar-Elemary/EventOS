@@ -378,7 +378,7 @@ async def stream_agents(event_id: str, run_id: str | None = None):
                 continue
             yield {"event": payload.get("type", "message"), "data": json.dumps(payload)}
 
-    return EventSourceResponse(gen())
+    return EventSourceResponse(gen(), ping=15)
 
 
 @router.get("/events/{event_id}/budget")

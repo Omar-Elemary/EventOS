@@ -2,11 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
+  min-height: 100vh;
   min-height: 100dvh;
   background-color: #fbf8ef;
-  background-image: radial-gradient(#000000 0.75px, transparent 0.75px);
-  background-size: 16px 16px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body {
+    background-image: radial-gradient(#000000 0.75px, transparent 0.75px);
+    background-size: 16px 16px;
+  }
 }
 
 ::selection {
@@ -17,15 +27,21 @@ body {
 @keyframes neo-pulse {
   0%,
   100% {
-    transform: scale(1);
+    opacity: 1;
   }
   50% {
-    transform: scale(1.06);
+    opacity: 0.72;
   }
 }
 
 .pulse-neo {
   animation: neo-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-neo {
+    animation: none;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {
