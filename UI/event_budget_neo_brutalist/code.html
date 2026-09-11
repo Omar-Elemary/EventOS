@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Budget - EventOS AI Planning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&amp;family=Public+Sans:wght@500;600;700&amp;family=JetBrains+Mono:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "neo-pink": "#ff2a85",
+          "neo-pink-light": "#ffd5e5",
+          "neo-cyan": "#00f0ff",
+          "neo-cyan-light": "#b8f9ff",
+          "neo-yellow": "#facc15",
+          "neo-yellow-light": "#fef3c7",
+          "neo-green": "#10b981",
+          "neo-green-light": "#d1fae5",
+          "neo-bg": "#fbf8ef",
+          "neo-black": "#121212"
+        },
+        fontFamily: {
+          grotesk: ["Space Grotesk", "sans-serif"],
+          sans: ["Public Sans", "sans-serif"],
+          mono: ["JetBrains Mono", "monospace"]
+        },
+        boxShadow: {
+          'neo-sm': '2px 2px 0px 0px #000000',
+          'neo': '3px 3px 0px 0px #000000',
+          'neo-lg': '4px 4px 0px 0px #000000',
+          'neo-xl': '6px 6px 0px 0px #000000'
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    min-height: max(884px, 100dvh);
+    background-color: #fbf8ef;
+    background-image: radial-gradient(#000000 0.75px, transparent 0.75px);
+    background-size: 16px 16px;
+  }
+  .donut-brutal {
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    border: 3px solid #000000;
+    box-shadow: 4px 4px 0px 0px #000000;
+    background: conic-gradient(
+      #00f0ff 0% 35%, 
+      #facc15 35% 60%, 
+      #10b981 60% 80%,
+      #ff2a85 80% 90%,
+      #e5e2e1 90% 100%
+    );
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .donut-brutal::before {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    background-color: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body class="text-black font-sans min-h-screen antialiased selection:bg-neo-yellow selection:text-black pb-28 md:pb-12">
+<!-- Top App Bar (Neo-Brutalist) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-8 h-16 bg-white border-b-2 border-black shadow-[0_2px_0px_0px_#000]">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 bg-neo-cyan border-2 border-black rounded shadow-neo-sm flex items-center justify-center font-black">
+<span class="material-symbols-outlined text-black text-xl font-bold" data-icon="hub">hub</span>
+</div>
+<span class="font-grotesk text-2xl font-extrabold tracking-tight text-black uppercase">EventOS</span>
+<span class="bg-neo-yellow border-2 border-black px-1.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider shadow-neo-sm ml-1">v2.4</span>
+</div>
+<div class="hidden md:flex items-center gap-4 font-grotesk text-sm font-bold">
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-neo-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-neo-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base" data-icon="calendar_today">calendar_today</span>
+<span>Events</span>
+</a>
+<a class="flex items-center gap-2 bg-neo-yellow text-black border-2 border-black shadow-neo-sm px-3 py-1.5 rounded font-extrabold" href="#">
+<span class="material-symbols-outlined text-base" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span>Budget</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-neo-pink hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-base" data-icon="auto_awesome">auto_awesome</span>
+<span>AI Planner</span>
+</a>
+</div>
+<button class="w-10 h-10 bg-white hover:bg-neo-yellow border-2 border-black rounded shadow-neo-sm flex items-center justify-center active:translate-x-0.5 active:translate-y-0.5 transition-transform">
+<span class="material-symbols-outlined text-black font-bold" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-20 md:pt-24 px-4 md:px-8 max-w-5xl mx-auto flex flex-col gap-6">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pt-2">
+<div>
+<div class="inline-flex items-center gap-2 px-2.5 py-0.5 mb-2 bg-neo-cyan border-2 border-black shadow-neo-sm font-mono font-black text-xs uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-black"></span>
+        FINANCIAL STATUS • ON TRACK
+      </div>
+<h1 class="font-grotesk font-extrabold text-3xl md:text-5xl uppercase tracking-tight text-black leading-none">
+        Budget Overview
+      </h1>
+<p class="font-sans font-bold text-sm md:text-base text-black/75 mt-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base text-black">event</span>
+        Tech Innovators Summit 2024
+      </p>
+</div>
+<button class="bg-neo-yellow hover:bg-neo-yellow/90 text-black border-2 border-black rounded-lg font-grotesk font-extrabold text-xs uppercase tracking-wider px-4 py-2.5 shadow-neo hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 shrink-0">
+<span class="material-symbols-outlined text-[18px] font-black" data-icon="download">download</span>
+      Export Report
+    </button>
+</div>
+<!-- Key Metrics Grid -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+<!-- Total Budget -->
+<div class="bg-white border-2 border-black rounded-lg p-4 shadow-neo-lg relative overflow-hidden flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-1.5 mb-1.5">
+<div class="w-5 h-5 rounded bg-neo-yellow border border-black flex items-center justify-center">
+<span class="material-symbols-outlined text-xs text-black font-black" data-icon="account_balance">account_balance</span>
+</div>
+<span class="font-mono text-[11px] font-black uppercase text-black/70 tracking-wider">Total Budget</span>
+</div>
+<div class="font-grotesk font-extrabold text-2xl sm:text-3xl text-black leading-tight">$30,000</div>
+</div>
+<div class="w-full bg-[#e5e5e5] h-2.5 border-2 border-black rounded-full mt-3 overflow-hidden p-[1px]">
+<div class="bg-black h-full rounded-full w-full"></div>
+</div>
+</div>
+<!-- Planned -->
+<div class="bg-neo-cyan-light/40 border-2 border-black rounded-lg p-4 shadow-neo-lg relative overflow-hidden flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-1.5 mb-1.5">
+<div class="w-5 h-5 rounded bg-neo-cyan border border-black flex items-center justify-center">
+<span class="material-symbols-outlined text-xs text-black font-black" data-icon="pending_actions">pending_actions</span>
+</div>
+<span class="font-mono text-[11px] font-black uppercase text-black/70 tracking-wider">Planned</span>
+</div>
+<div class="font-grotesk font-extrabold text-2xl sm:text-3xl text-black leading-tight">$28,050</div>
+</div>
+<div class="w-full bg-white h-2.5 border-2 border-black rounded-full mt-3 overflow-hidden p-[1px]">
+<div class="bg-neo-cyan h-full rounded-full border-r border-black" style="width: 93.5%"></div>
+</div>
+</div>
+<!-- Remaining -->
+<div class="bg-neo-green-light/40 border-2 border-black rounded-lg p-4 shadow-neo-lg relative overflow-hidden flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-1.5 mb-1.5">
+<div class="w-5 h-5 rounded bg-neo-green border border-black flex items-center justify-center">
+<span class="material-symbols-outlined text-xs text-black font-black" data-icon="savings">savings</span>
+</div>
+<span class="font-mono text-[11px] font-black uppercase text-black/70 tracking-wider">Remaining</span>
+</div>
+<div class="font-grotesk font-extrabold text-2xl sm:text-3xl text-neo-black leading-tight">$1,950</div>
+</div>
+<div class="w-full bg-white h-2.5 border-2 border-black rounded-full mt-3 overflow-hidden p-[1px]">
+<div class="bg-neo-green h-full rounded-full border-r border-black" style="width: 6.5%"></div>
+</div>
+</div>
+<!-- Contingency -->
+<div class="bg-white border-2 border-black rounded-lg p-4 shadow-neo-lg relative overflow-hidden flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-1.5 mb-1.5">
+<div class="w-5 h-5 rounded bg-neo-pink border border-black flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xs font-black" data-icon="shield">shield</span>
+</div>
+<span class="font-mono text-[11px] font-black uppercase text-black/70 tracking-wider">Contingency</span>
+</div>
+<div class="font-grotesk font-extrabold text-2xl sm:text-3xl text-black leading-tight">$2,550</div>
+</div>
+<div class="font-mono text-[11px] font-extrabold bg-[#f5f2eb] border border-black px-2 py-0.5 rounded text-black/80 mt-3 inline-block w-fit">
+        8.5% of total
+      </div>
+</div>
+</div>
+<!-- Bento Grid: Allocation Breakdown & Line Items Table -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Donut Breakdown + AI Insight -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- Donut Chart Card -->
+<div class="bg-white border-2 border-black rounded-xl p-5 shadow-neo-lg flex flex-col items-center">
+<div class="w-full flex justify-between items-center border-b-2 border-black pb-3 mb-5">
+<h2 class="font-grotesk text-lg font-extrabold text-black uppercase tracking-tight flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-neo-yellow border-2 border-black flex items-center justify-center shadow-neo-sm">
+<span class="material-symbols-outlined text-sm font-black" data-icon="pie_chart">pie_chart</span>
+</div>
+            Allocation
+          </h2>
+<span class="font-mono text-[11px] font-black bg-neo-yellow border border-black px-2 py-0.5 rounded shadow-neo-sm">
+            PLANNED 93%
+          </span>
+</div>
+<div class="donut-brutal my-3">
+<div class="absolute flex flex-col items-center z-10">
+<span class="font-mono text-[10px] font-black text-black/60 tracking-wider uppercase">PLANNED</span>
+<span class="font-grotesk font-extrabold text-3xl text-black">93%</span>
+<span class="font-mono text-[10px] font-bold text-black/70">$28,050</span>
+</div>
+</div>
+<!-- Legend Items -->
+<div class="w-full flex flex-col gap-2.5 mt-5 font-mono text-xs font-bold">
+<div class="flex justify-between items-center bg-[#fbf8ef] p-2 rounded border-2 border-black shadow-neo-sm">
+<div class="flex items-center gap-2">
+<div class="w-3.5 h-3.5 rounded-sm bg-neo-cyan border border-black"></div>
+<span class="font-sans font-bold text-black text-sm">Venue</span>
+</div>
+<span class="font-extrabold text-black">$10,500</span>
+</div>
+<div class="flex justify-between items-center bg-[#fbf8ef] p-2 rounded border-2 border-black shadow-neo-sm">
+<div class="flex items-center gap-2">
+<div class="w-3.5 h-3.5 rounded-sm bg-neo-yellow border border-black"></div>
+<span class="font-sans font-bold text-black text-sm">Catering</span>
+</div>
+<span class="font-extrabold text-black">$7,500</span>
+</div>
+<div class="flex justify-between items-center bg-[#fbf8ef] p-2 rounded border-2 border-black shadow-neo-sm">
+<div class="flex items-center gap-2">
+<div class="w-3.5 h-3.5 rounded-sm bg-neo-green border border-black"></div>
+<span class="font-sans font-bold text-black text-sm">AV Tech</span>
+</div>
+<span class="font-extrabold text-black">$6,000</span>
+</div>
+<div class="flex justify-between items-center bg-[#fbf8ef] p-2 rounded border-2 border-black shadow-neo-sm">
+<div class="flex items-center gap-2">
+<div class="w-3.5 h-3.5 rounded-sm bg-neo-pink border border-black"></div>
+<span class="font-sans font-bold text-black text-sm">Decor</span>
+</div>
+<span class="font-extrabold text-black">$2,850</span>
+</div>
+<div class="flex justify-between items-center bg-[#fbf8ef] p-2 rounded border-2 border-black shadow-neo-sm">
+<div class="flex items-center gap-2">
+<div class="w-3.5 h-3.5 rounded-sm bg-[#e5e2e1] border border-black"></div>
+<span class="font-sans font-bold text-black text-sm">Other</span>
+</div>
+<span class="font-extrabold text-black">$1,200</span>
+</div>
+</div>
+</div>
+<!-- AI Budget Agent Insight -->
+<div class="bg-neo-yellow border-2 border-black rounded-xl p-5 shadow-neo-lg relative overflow-hidden flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-neo-pink border-2 border-black shadow-neo-sm flex items-center justify-center text-black">
+<span class="material-symbols-outlined text-lg font-bold" data-icon="smart_toy">smart_toy</span>
+</div>
+<span class="font-mono text-xs font-black uppercase text-black tracking-wider">Budget Agent Insight</span>
+</div>
+<span class="bg-black text-white px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase">Active</span>
+</div>
+<div class="bg-white border-2 border-black rounded-lg p-3.5 shadow-neo-sm font-sans text-sm font-bold text-black leading-relaxed">
+          Agent recommends reducing <span class="bg-neo-pink/30 border border-black px-1.5 py-0.5 rounded text-neo-pink font-extrabold">decoration spending by $700</span> to maintain a healthy contingency reserve. Current decor run-rate is tracking 15% above average.
+        </div>
+<button class="w-full py-3 bg-black hover:bg-neutral-800 text-white font-grotesk font-extrabold text-xs uppercase tracking-wider rounded-lg border-2 border-black shadow-neo active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm font-bold text-neo-yellow" data-icon="tune">tune</span>
+          Optimize Budget
+        </button>
+</div>
+</div>
+<!-- Right Column: Line Items Table -->
+<div class="lg:col-span-7">
+<div class="bg-white border-2 border-black rounded-xl shadow-neo-lg overflow-hidden flex flex-col">
+<!-- Table Card Header -->
+<div class="p-4 border-b-2 border-black flex justify-between items-center bg-[#faf7f2]">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded bg-neo-cyan border-2 border-black flex items-center justify-center shadow-neo-sm">
+<span class="material-symbols-outlined text-base font-black text-black" data-icon="format_list_bulleted">format_list_bulleted</span>
+</div>
+<h2 class="font-grotesk text-xl font-extrabold text-black uppercase tracking-tight">Line Items</h2>
+</div>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded bg-white hover:bg-neo-yellow border-2 border-black shadow-neo-sm flex items-center justify-center active:translate-x-0.5 active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="filter_list">filter_list</span>
+</button>
+<button class="w-8 h-8 rounded bg-neo-yellow hover:bg-neo-yellow/90 border-2 border-black shadow-neo-sm flex items-center justify-center active:translate-x-0.5 active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined text-sm font-black" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="font-mono text-xs font-black uppercase text-black border-b-2 border-black bg-white">
+<th class="py-3 px-4 font-black">Category</th>
+<th class="py-3 px-3 font-black">Vendor</th>
+<th class="py-3 px-3 font-black text-right">Estimated</th>
+<th class="py-3 px-3 font-black text-right">Actual</th>
+<th class="py-3 px-4 font-black text-center">Status</th>
+</tr>
+</thead>
+<tbody class="font-sans text-sm font-bold divide-y-2 divide-black bg-[#fffefc]">
+<!-- Venue -->
+<tr class="hover:bg-neo-yellow-light/40 transition-colors">
+<td class="py-3.5 px-4 flex items-center gap-2.5">
+<div class="w-8 h-8 rounded bg-neo-cyan border-2 border-black flex items-center justify-center shrink-0 shadow-neo-sm">
+<span class="material-symbols-outlined text-base font-bold text-black" data-icon="location_city">location_city</span>
+</div>
+<span class="font-extrabold text-black">Venue</span>
+</td>
+<td class="py-3.5 px-3 font-sans text-black/80">Grand Hyatt</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-bold text-black/70">$10,000</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-extrabold text-black">$10,500</td>
+<td class="py-3.5 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border-2 border-black bg-neo-pink-light font-mono text-[10px] font-black text-black shadow-neo-sm">
+                    + $500
+                  </span>
+</td>
+</tr>
+<!-- Catering -->
+<tr class="hover:bg-neo-yellow-light/40 transition-colors">
+<td class="py-3.5 px-4 flex items-center gap-2.5">
+<div class="w-8 h-8 rounded bg-neo-yellow border-2 border-black flex items-center justify-center shrink-0 shadow-neo-sm">
+<span class="material-symbols-outlined text-base font-bold text-black" data-icon="restaurant">restaurant</span>
+</div>
+<span class="font-extrabold text-black">Catering</span>
+</td>
+<td class="py-3.5 px-3 font-sans text-black/80">Gourmet Bites</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-bold text-black/70">$8,000</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-extrabold text-black">$7,500</td>
+<td class="py-3.5 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border-2 border-black bg-neo-green-light font-mono text-[10px] font-black text-black shadow-neo-sm">
+                    - $500
+                  </span>
+</td>
+</tr>
+<!-- AV Tech -->
+<tr class="hover:bg-neo-yellow-light/40 transition-colors">
+<td class="py-3.5 px-4 flex items-center gap-2.5">
+<div class="w-8 h-8 rounded bg-neo-green border-2 border-black flex items-center justify-center shrink-0 shadow-neo-sm">
+<span class="material-symbols-outlined text-base font-bold text-black" data-icon="speaker">speaker</span>
+</div>
+<span class="font-extrabold text-black">AV Tech</span>
+</td>
+<td class="py-3.5 px-3 font-sans text-black/80">SoundWave Pro</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-bold text-black/70">$6,000</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-extrabold text-black">$6,000</td>
+<td class="py-3.5 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border-2 border-black bg-white font-mono text-[10px] font-black text-black shadow-neo-sm">
+                    ON TARGET
+                  </span>
+</td>
+</tr>
+<!-- Decor (Variance Alert) -->
+<tr class="bg-neo-pink-light/30 hover:bg-neo-pink-light/50 transition-colors">
+<td class="py-3.5 px-4 flex items-center gap-2.5">
+<div class="w-8 h-8 rounded bg-neo-pink border-2 border-black flex items-center justify-center shrink-0 shadow-neo-sm text-white">
+<span class="material-symbols-outlined text-base font-bold" data-icon="celebration">celebration</span>
+</div>
+<span class="font-extrabold text-black">Decor</span>
+</td>
+<td class="py-3.5 px-3 font-sans text-black/80">Floral Arts</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-bold text-black/70">$2,000</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-extrabold text-neo-pink">$2,850</td>
+<td class="py-3.5 px-4 text-center">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border-2 border-black bg-neo-pink text-white font-mono text-[10px] font-black shadow-neo-sm">
+<span class="material-symbols-outlined text-[12px] font-black" data-icon="warning">warning</span>
+                    + $850
+                  </span>
+</td>
+</tr>
+<!-- Printing -->
+<tr class="hover:bg-neo-yellow-light/40 transition-colors">
+<td class="py-3.5 px-4 flex items-center gap-2.5">
+<div class="w-8 h-8 rounded bg-[#e5e2e1] border-2 border-black flex items-center justify-center shrink-0 shadow-neo-sm">
+<span class="material-symbols-outlined text-base font-bold text-black" data-icon="print">print</span>
+</div>
+<span class="font-extrabold text-black">Printing</span>
+</td>
+<td class="py-3.5 px-3 font-sans text-black/80">QuickPrint</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-bold text-black/70">$1,500</td>
+<td class="py-3.5 px-3 text-right font-mono text-xs font-extrabold text-black">$1,200</td>
+<td class="py-3.5 px-4 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded border-2 border-black bg-neo-green-light font-mono text-[10px] font-black text-black shadow-neo-sm">
+                    - $300
+                  </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Summary Bar -->
+<div class="p-3 bg-[#f5f2eb] border-t-2 border-black flex flex-wrap justify-between items-center gap-2 font-mono text-xs">
+<span class="font-black text-black/70 uppercase">5 Total Categories</span>
+<div class="flex items-center gap-2 font-black text-black">
+<span>NET VARIANCE:</span>
+<span class="px-2 py-0.5 bg-neo-pink border border-black rounded text-white font-mono text-[11px] shadow-neo-sm">+ $550</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Mobile Neo-Brutalist Matching Screen 3 & 4) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-3 py-2 pb-safe bg-white border-t-2 border-black shadow-[0_-3px_0px_0px_#000000]">
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-neo-pink" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-neo-pink" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-neo-yellow text-black border-2 border-black shadow-neo-sm rounded-lg px-3 py-1 scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black">Budget</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-neo-pink" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">AI Planner</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-neo-pink" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="menu">menu</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">More</span>
+</a>
+</nav>
+</body></html>

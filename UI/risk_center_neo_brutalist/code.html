@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EventOS - Risk Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@500;600;700;800&amp;family=Space+Grotesk:wght@600;700;800&amp;family=JetBrains+Mono:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "nb-yellow": "#FFDE59",
+          "nb-yellow-light": "#fef08a",
+          "nb-pink": "#FF2A85",
+          "nb-pink-light": "#ffccd5",
+          "nb-magenta": "#e30071",
+          "nb-cyan": "#00eefc",
+          "nb-cyan-light": "#7df4ff",
+          "nb-green": "#00DF81",
+          "nb-green-light": "#dcfce7",
+          "nb-bg": "#fbf8ef",
+          "surface": "#ffffff"
+        },
+        fontFamily: {
+          sans: ["Public Sans", "sans-serif"],
+          display: ["Space Grotesk", "sans-serif"],
+          mono: ["JetBrains Mono", "monospace"]
+        },
+        boxShadow: {
+          'nb-sm': '2px 2px 0px 0px #000000',
+          'nb': '3px 3px 0px 0px #000000',
+          'nb-lg': '4px 4px 0px 0px #000000',
+          'nb-xl': '6px 6px 0px 0px #000000'
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    min-height: max(884px, 100dvh);
+    background-color: #fbf8ef;
+    background-image: radial-gradient(#000000 0.8px, transparent 0.8px);
+    background-size: 16px 16px;
+  }
+</style>
+</head>
+<body class="text-black font-sans min-h-screen antialiased selection:bg-nb-yellow selection:text-black pb-24 md:pb-8 flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-8 h-16 bg-white border-b-2 border-black shadow-[0_2px_0px_0px_#000]">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 bg-nb-cyan border-2 border-black rounded shadow-nb-sm flex items-center justify-center font-black">
+<span class="material-symbols-outlined text-black text-xl font-bold" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<span class="font-display text-2xl font-extrabold tracking-tight text-black">EventOS</span>
+<span class="bg-nb-yellow border-2 border-black px-1.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider shadow-nb-sm ml-1">v2.4</span>
+</div>
+<div class="hidden md:flex gap-4 items-center font-display text-sm font-bold">
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-nb-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-nb-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base">calendar_today</span>
+<span>Events</span>
+</a>
+<a class="flex items-center gap-2 bg-nb-pink text-white border-2 border-black shadow-nb-sm px-3 py-1.5 rounded font-bold" href="#">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span>Risk Center</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-nb-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base">auto_awesome</span>
+<span>AI Planner</span>
+</a>
+</div>
+<div class="flex items-center">
+<button class="w-10 h-10 bg-white hover:bg-nb-yellow border-2 border-black rounded shadow-nb-sm flex items-center justify-center transition-transform active:translate-x-0.5 active:translate-y-0.5">
+<span class="material-symbols-outlined text-black font-bold">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-16 pt-5 px-4 md:px-8 max-w-4xl mx-auto w-full flex flex-col gap-6">
+<!-- Header Section -->
+<section class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+<div>
+<div class="inline-flex items-center gap-2 px-2.5 py-0.5 mb-2 bg-nb-cyan border-2 border-black shadow-nb-sm font-mono font-black text-[11px] uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+        SYSTEM THREAT LEVEL: ELEVATED
+      </div>
+<h1 class="font-display font-extrabold text-3xl sm:text-4xl tracking-tight uppercase text-black leading-none">
+        Risk Center
+      </h1>
+<p class="font-sans font-bold text-xs sm:text-sm text-black/80 mt-1 uppercase tracking-wide">
+        Real-time threat assessment &amp; AI mitigation protocols
+      </p>
+</div>
+<button class="w-full sm:w-auto flex items-center justify-center gap-2 bg-nb-yellow hover:bg-[#ebd048] text-black font-display font-black text-sm uppercase px-5 py-3 rounded-lg border-2 border-black shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb transition-all">
+<span class="material-symbols-outlined text-black font-black" style="font-variation-settings: 'FILL' 1;">scan</span>
+      RUN DIAGNOSTIC
+    </button>
+</section>
+<!-- Summary Dashboard (Neo-Brutalist Bento Grid) -->
+<section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+<!-- Critical -->
+<div class="bg-white border-2 border-black rounded-lg p-3.5 shadow-nb flex flex-col items-center justify-center text-center relative group hover:translate-x-[-1px] hover:translate-y-[-1px] transition-transform">
+<div class="w-8 h-8 rounded bg-[#e5e5e5] border-2 border-black flex items-center justify-center mb-1.5 shadow-nb-sm">
+<span class="material-symbols-outlined text-black font-bold text-lg">warning</span>
+</div>
+<span class="font-display font-extrabold text-3xl sm:text-4xl text-black leading-none">0</span>
+<span class="font-mono font-black text-[11px] text-black/70 tracking-wider mt-1.5 uppercase">CRITICAL</span>
+</div>
+<!-- High -->
+<div class="bg-nb-pink-light border-2 border-black rounded-lg p-3.5 shadow-nb flex flex-col items-center justify-center text-center relative hover:translate-x-[-1px] hover:translate-y-[-1px] transition-transform">
+<div class="w-8 h-8 rounded bg-nb-pink text-white border-2 border-black flex items-center justify-center mb-1.5 shadow-nb-sm">
+<span class="material-symbols-outlined font-black text-lg" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<span class="font-display font-extrabold text-3xl sm:text-4xl text-nb-pink leading-none">1</span>
+<span class="font-mono font-black text-[11px] text-black tracking-wider mt-1.5 uppercase bg-white border border-black px-1.5 rounded">HIGH</span>
+</div>
+<!-- Medium -->
+<div class="bg-nb-yellow-light border-2 border-black rounded-lg p-3.5 shadow-nb flex flex-col items-center justify-center text-center relative hover:translate-x-[-1px] hover:translate-y-[-1px] transition-transform">
+<div class="w-8 h-8 rounded bg-nb-yellow text-black border-2 border-black flex items-center justify-center mb-1.5 shadow-nb-sm">
+<span class="material-symbols-outlined font-black text-lg">report_problem</span>
+</div>
+<span class="font-display font-extrabold text-3xl sm:text-4xl text-black leading-none">2</span>
+<span class="font-mono font-black text-[11px] text-black tracking-wider mt-1.5 uppercase bg-white border border-black px-1.5 rounded">MEDIUM</span>
+</div>
+<!-- Low -->
+<div class="bg-nb-green-light border-2 border-black rounded-lg p-3.5 shadow-nb flex flex-col items-center justify-center text-center relative hover:translate-x-[-1px] hover:translate-y-[-1px] transition-transform">
+<div class="w-8 h-8 rounded bg-nb-green text-black border-2 border-black flex items-center justify-center mb-1.5 shadow-nb-sm">
+<span class="material-symbols-outlined font-black text-lg">info</span>
+</div>
+<span class="font-display font-extrabold text-3xl sm:text-4xl text-black leading-none">5</span>
+<span class="font-mono font-black text-[11px] text-black tracking-wider mt-1.5 uppercase bg-white border border-black px-1.5 rounded">LOW</span>
+</div>
+</section>
+<!-- Detailed Risk Cards -->
+<section class="flex flex-col gap-5 w-full">
+<div class="flex items-center justify-between border-b-2 border-black pb-2">
+<h2 class="font-display font-extrabold text-lg sm:text-xl text-black uppercase tracking-tight flex items-center gap-2">
+<span class="w-3 h-3 bg-nb-pink border border-black inline-block"></span>
+        Active Mitigation Protocols
+      </h2>
+<span class="font-mono text-xs font-black bg-white border-2 border-black px-2 py-0.5 rounded shadow-nb-sm">
+        2 ACTIVE
+      </span>
+</div>
+<!-- HIGH RISK CARD -->
+<div class="bg-white border-2 border-black rounded-xl p-4 sm:p-5 shadow-nb-lg flex flex-col gap-3.5 relative overflow-hidden">
+<!-- Decorative top stripe -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-nb-pink"></div>
+<!-- Card Top Bar -->
+<div class="flex justify-between items-start gap-2 pt-1">
+<div class="flex flex-col sm:flex-row sm:items-center gap-2">
+<div class="bg-nb-pink text-white font-mono font-black text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border-2 border-black shadow-nb-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-sm font-black">priority_high</span>
+            HIGH RISK
+          </div>
+<h3 class="font-display font-extrabold text-lg sm:text-xl text-black tracking-tight">
+            Venue Capacity Risk
+          </h3>
+</div>
+<!-- 35% Score Badge -->
+<div class="flex flex-col items-center justify-center px-2.5 py-1 bg-nb-pink-light border-2 border-black rounded-lg shadow-nb-sm shrink-0">
+<span class="font-mono text-[10px] font-black uppercase text-black/70 leading-none">PROB</span>
+<span class="font-mono text-base font-black text-black leading-tight">35%</span>
+</div>
+</div>
+<p class="font-sans text-xs sm:text-sm font-semibold text-black/85 leading-relaxed bg-[#f9f7f4] border-2 border-black rounded-lg p-3">
+        Expected attendance may exceed venue capacity if registrations increase. Current projection trends indicate a potential overflow scenario within 48 hours.
+      </p>
+<!-- AI Mitigation Module -->
+<div class="bg-nb-cyan-light border-2 border-black rounded-lg p-3.5 shadow-nb relative">
+<div class="flex items-start gap-2.5">
+<div class="w-8 h-8 rounded bg-white border-2 border-black shadow-nb-sm flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-black text-lg font-bold" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="flex flex-col gap-0.5 w-full">
+<div class="flex items-center justify-between">
+<span class="font-mono font-black text-[11px] text-black uppercase tracking-wider flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-nb-pink border border-black inline-block"></span>
+                AI MITIGATION STRATEGY
+              </span>
+<span class="font-mono text-[10px] font-extrabold bg-black text-white px-1.5 py-0.2 rounded">CONFIDENCE 94%</span>
+</div>
+<p class="font-mono font-bold text-xs sm:text-sm text-black mt-1 leading-snug">
+              Monitor registration count and prepare Venue B as a backup.
+            </p>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-wrap items-center gap-2.5 pt-1">
+<button class="bg-nb-pink hover:bg-nb-magenta text-white font-display font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg border-2 border-black shadow-nb flex items-center gap-1.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm transition-all">
+<span class="material-symbols-outlined text-sm font-black">auto_fix_high</span>
+          MITIGATE
+        </button>
+<button class="bg-white hover:bg-nb-yellow text-black font-display font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg border-2 border-black shadow-nb active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm transition-all">
+          ASSIGN
+        </button>
+<button class="ml-auto bg-white hover:bg-[#e5e5e5] text-black font-display font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg border-2 border-black shadow-nb active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm transition-all">
+          ACCEPT
+        </button>
+</div>
+</div>
+<!-- MEDIUM RISK CARD -->
+<div class="bg-white border-2 border-black rounded-xl p-4 sm:p-5 shadow-nb-lg flex flex-col gap-3.5 relative overflow-hidden">
+<!-- Decorative top stripe -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-nb-yellow"></div>
+<!-- Card Top Bar -->
+<div class="flex justify-between items-start gap-2 pt-1">
+<div class="flex flex-col sm:flex-row sm:items-center gap-2">
+<div class="bg-nb-yellow text-black font-mono font-black text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border-2 border-black shadow-nb-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-sm font-black">warning</span>
+            MEDIUM RISK
+          </div>
+<h3 class="font-display font-extrabold text-lg sm:text-xl text-black tracking-tight">
+            AV Vendor Delay
+          </h3>
+</div>
+<!-- 20% Score Badge -->
+<div class="flex flex-col items-center justify-center px-2.5 py-1 bg-nb-yellow-light border-2 border-black rounded-lg shadow-nb-sm shrink-0">
+<span class="font-mono text-[10px] font-black uppercase text-black/70 leading-none">PROB</span>
+<span class="font-mono text-base font-black text-black leading-tight">20%</span>
+</div>
+</div>
+<p class="font-sans text-xs sm:text-sm font-semibold text-black/85 leading-relaxed bg-[#f9f7f4] border-2 border-black rounded-lg p-3">
+        Primary audiovisual contractor response is 12 hours overdue. Delivery schedule may impact final stage rehearsal timeline.
+      </p>
+<!-- AI Suggestion Module -->
+<div class="bg-nb-yellow-light border-2 border-black rounded-lg p-3.5 shadow-nb relative">
+<div class="flex items-start gap-2.5">
+<div class="w-8 h-8 rounded bg-white border-2 border-black shadow-nb-sm flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-black text-lg font-bold">lightbulb</span>
+</div>
+<div class="flex flex-col gap-0.5 w-full">
+<span class="font-mono font-black text-[11px] text-black uppercase tracking-wider">
+              AI SUGGESTION
+            </span>
+<p class="font-mono font-bold text-xs sm:text-sm text-black mt-1 leading-snug">
+              Secure secondary AV provider from pre-vetted Cairo vendor database.
+            </p>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-wrap items-center gap-2.5 pt-1">
+<button class="bg-nb-yellow hover:bg-[#ebd048] text-black font-display font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg border-2 border-black shadow-nb active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm font-black">store</span>
+          REVIEW VENDORS
+        </button>
+<button class="bg-white hover:bg-[#e5e5e5] text-black font-display font-extrabold text-xs uppercase px-4 py-2.5 rounded-lg border-2 border-black shadow-nb active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm transition-all">
+          DISMISS
+        </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-3 py-2 pb-safe bg-white border-t-2 border-black shadow-[0_-2px_0px_0px_#000]">
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-pink" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-pink" href="#">
+<span class="material-symbols-outlined text-xl">calendar_today</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-nb-pink text-white border-2 border-black shadow-nb rounded-lg px-3 py-1 scale-95" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black">Risk Center</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-pink" href="#">
+<span class="material-symbols-outlined text-xl">auto_awesome</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">AI Planner</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-pink" href="#">
+<span class="material-symbols-outlined text-xl">menu</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">More</span>
+</a>
+</nav>
+</body></html>

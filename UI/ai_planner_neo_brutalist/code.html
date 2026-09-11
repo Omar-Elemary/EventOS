@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EventOS - AI Planner</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "nb-yellow": "#ffe083",
+          "nb-yellow-bright": "#facc15",
+          "nb-pink": "#ffb1c5",
+          "nb-magenta": "#e30071",
+          "nb-cyan": "#00eefc",
+          "nb-cyan-light": "#7df4ff",
+          "nb-green": "#4ade80",
+          "nb-bg": "#fbf8ef",
+          "surface": "#ffffff",
+          "surface-container": "#f4efe6",
+          "surface-container-low": "#fbf8ef",
+          "surface-container-high": "#ebe3d5",
+          "primary": "#b60059",
+          "secondary": "#006970"
+        },
+        fontFamily: {
+          sans: ["Public Sans", "sans-serif"],
+          display: ["Space Grotesk", "sans-serif"],
+          mono: ["JetBrains Mono", "monospace"]
+        },
+        boxShadow: {
+          'nb-sm': '2px 2px 0px 0px #000000',
+          'nb': '3px 3px 0px 0px #000000',
+          'nb-lg': '4px 4px 0px 0px #000000',
+          'nb-xl': '6px 6px 0px 0px #000000'
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    min-height: max(884px, 100dvh);
+    background-color: #fbf8ef;
+    background-image: radial-gradient(#000000 0.75px, transparent 0.75px);
+    background-size: 16px 16px;
+  }
+</style>
+</head>
+<body class="text-black font-sans min-h-screen pb-24 md:pb-8">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-8 h-16 bg-white border-b-2 border-black shadow-[0_2px_0px_0px_#000]">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 bg-nb-cyan border-2 border-black rounded shadow-nb-sm flex items-center justify-center font-black">
+<span class="material-symbols-outlined text-black text-xl font-bold" data-icon="hub">hub</span>
+</div>
+<span class="font-display text-2xl font-extrabold tracking-tight text-black">EventOS</span>
+<span class="bg-nb-yellow border-2 border-black px-1.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider shadow-nb-sm ml-1">v2.4</span>
+</div>
+<div class="hidden md:flex items-center gap-4 font-display text-sm font-bold">
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-nb-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-nb-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base" data-icon="calendar_today">calendar_today</span>
+<span>Events</span>
+</a>
+<a class="flex items-center gap-2 bg-nb-magenta text-white border-2 border-black shadow-nb-sm px-3 py-1.5 rounded font-bold" href="#">
+<span class="material-symbols-outlined text-base" data-icon="auto_awesome">auto_awesome</span>
+<span>AI Planner</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded border-2 border-transparent hover:border-black hover:bg-nb-yellow transition-all" href="#">
+<span class="material-symbols-outlined text-base" data-icon="menu">menu</span>
+<span>More</span>
+</a>
+</div>
+<button class="w-10 h-10 bg-white hover:bg-nb-yellow border-2 border-black rounded shadow-nb-sm flex items-center justify-center transition-transform active:translate-x-0.5 active:translate-y-0.5">
+<span class="material-symbols-outlined text-black font-bold" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="pt-24 px-4 md:px-8 max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Left / Main Column -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- Goal Statement -->
+<div class="bg-nb-yellow border-2 border-black rounded-lg p-5 md:p-6 shadow-nb-lg relative overflow-hidden">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-nb-magenta border-2 border-black shadow-nb-sm flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<div class="inline-flex items-center gap-1.5 bg-black text-white px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider mb-2">
+<span class="w-2 h-2 rounded-full bg-nb-green inline-block"></span>
+            ACTIVE MISSION
+          </div>
+<h1 class="font-display text-xl md:text-2xl lg:text-3xl font-extrabold text-black leading-tight mb-2">
+            3-day AI conference in Cairo for 500 people, $30k budget.
+          </h1>
+<p class="font-sans text-sm md:text-base text-black/90 font-semibold leading-relaxed">
+            I am actively orchestrating this event. Current focus is securing suitable venues and vendors within the allocated budget.
+          </p>
+</div>
+</div>
+</div>
+<!-- Agent Activity Flow (Bento / Neo-Brutalist Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Requirements (Done) -->
+<div class="bg-white border-2 border-black rounded-lg p-4 md:p-5 shadow-nb-lg relative flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2.5">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded bg-nb-green border-2 border-black flex items-center justify-center text-black shadow-nb-sm">
+<span class="material-symbols-outlined text-lg font-black" data-icon="check">check</span>
+</div>
+<h3 class="font-display text-lg font-black text-black">Requirements</h3>
+</div>
+<span class="font-mono text-xs font-black bg-nb-green/30 border-2 border-black px-2 py-0.5 rounded shadow-nb-sm text-black uppercase">
+              COMPLETED
+            </span>
+</div>
+<p class="font-sans text-sm font-medium text-black/80 mb-3">
+            Audience demographics, tech requirements, and space needs identified.
+          </p>
+</div>
+<div class="font-mono text-xs font-bold text-black/70 bg-nb-bg border border-black/30 px-2 py-1 rounded inline-block w-fit">
+          ⏱ Processing time: 1.2s
+        </div>
+</div>
+<!-- Venues (Done) -->
+<div class="bg-white border-2 border-black rounded-lg p-4 md:p-5 shadow-nb-lg relative flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2.5">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded bg-nb-green border-2 border-black flex items-center justify-center text-black shadow-nb-sm">
+<span class="material-symbols-outlined text-lg font-black" data-icon="check">check</span>
+</div>
+<h3 class="font-display text-lg font-black text-black">Venues</h3>
+</div>
+<span class="font-mono text-xs font-black bg-nb-green/30 border-2 border-black px-2 py-0.5 rounded shadow-nb-sm text-black uppercase">
+              COMPLETED
+            </span>
+</div>
+<p class="font-sans text-sm font-medium text-black/80 mb-3">
+            Shortlisted 3 venues in downtown Cairo capable of 500+ capacity.
+          </p>
+</div>
+<div class="font-mono text-xs font-bold text-black/70 bg-nb-bg border border-black/30 px-2 py-1 rounded inline-block w-fit">
+          ⏱ Processing time: 3.4s
+        </div>
+</div>
+<!-- Vendors (Active) -->
+<div class="md:col-span-2 bg-nb-cyan-light border-2 border-black rounded-lg p-5 shadow-nb-lg relative">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2.5">
+<div class="relative flex h-3.5 w-3.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-nb-magenta opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-nb-magenta border border-black"></span>
+</div>
+<h3 class="font-display text-xl font-black text-black tracking-tight">Vendors</h3>
+</div>
+<span class="font-mono text-xs font-black bg-nb-yellow border-2 border-black px-2.5 py-1 rounded shadow-nb-sm flex items-center gap-1.5 uppercase">
+<span class="material-symbols-outlined text-sm animate-spin" data-icon="sync">sync</span> ACTIVE
+          </span>
+</div>
+<div class="space-y-3">
+<div class="bg-white border-2 border-black rounded-lg p-3 font-mono text-xs md:text-sm font-bold text-black shadow-nb-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-nb-magenta" data-icon="terminal">terminal</span>
+<span>[Agent Action] Fetching quotes from top 5 AV suppliers in Cairo...</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-white border-2 border-black h-4 rounded-full overflow-hidden p-0.5 shadow-nb-sm">
+<div class="bg-nb-magenta h-full rounded-full border-r-2 border-black" style="width: 66%"></div>
+</div>
+<span class="font-mono text-xs font-black bg-black text-white px-2 py-0.5 rounded">66%</span>
+</div>
+</div>
+</div>
+<!-- Budget (Pending) -->
+<div class="md:col-span-2 bg-white/80 border-2 border-dashed border-black rounded-lg p-4 md:p-5 shadow-nb">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-black/60 font-bold" data-icon="pending">pending</span>
+<h3 class="font-display text-lg font-black text-black/70">Budget</h3>
+</div>
+<span class="font-mono text-xs font-black bg-black/10 border-2 border-black/40 text-black/70 px-2 py-0.5 rounded uppercase">
+            PENDING
+          </span>
+</div>
+<p class="font-sans text-sm font-semibold text-black/60">
+          Awaiting vendor quotes to finalize financial allocations.
+        </p>
+</div>
+</div>
+<!-- AI Chat Interface -->
+<div class="bg-white border-2 border-black rounded-lg shadow-nb-lg flex flex-col mt-2 overflow-hidden">
+<!-- Header -->
+<div class="border-b-2 border-black bg-nb-yellow p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 bg-white border-2 border-black rounded flex items-center justify-center shadow-nb-sm">
+<span class="material-symbols-outlined text-black text-base font-bold" data-icon="forum">forum</span>
+</div>
+<h3 class="font-display text-base md:text-lg font-black text-black">Agent Communications</h3>
+</div>
+<span class="font-mono text-[11px] font-bold bg-white border border-black px-2 py-0.5 rounded shadow-nb-sm">
+          ONLINE • GPT-4o
+        </span>
+</div>
+<!-- Chat Stream -->
+<div class="p-4 bg-nb-bg min-h-[160px] flex flex-col gap-3">
+<div class="flex items-start gap-3 max-w-[92%] md:max-w-[85%]">
+<div class="w-9 h-9 rounded-lg bg-nb-cyan border-2 border-black flex items-center justify-center text-black font-bold shadow-nb-sm shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-xl" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-white p-3.5 rounded-lg rounded-tl-none text-black font-sans text-sm font-semibold shadow-nb border-2 border-black leading-relaxed">
+            I've created the initial event requirements. I'm now comparing venues and estimating vendor costs. I will notify you when I have a concrete financial projection based on the $30k limit.
+          </div>
+</div>
+</div>
+<!-- Suggested Actions -->
+<div class="p-3 bg-white border-t-2 border-black flex gap-2 overflow-x-auto no-scrollbar">
+<button class="whitespace-nowrap px-3.5 py-1.5 bg-nb-yellow hover:bg-nb-yellow-bright text-black font-display font-extrabold text-xs rounded border-2 border-black shadow-nb-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="search">search</span>
+          Find cheaper venues
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 bg-nb-pink hover:bg-nb-magenta hover:text-white text-black font-display font-extrabold text-xs rounded border-2 border-black shadow-nb-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="trending_down">trending_down</span>
+          Reduce budget
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 bg-nb-cyan hover:bg-nb-cyan-light text-black font-display font-extrabold text-xs rounded border-2 border-black shadow-nb-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="directions_bus">directions_bus</span>
+          Add transportation
+        </button>
+</div>
+<!-- Input Field -->
+<div class="p-3 bg-white border-t-2 border-black relative">
+<div class="flex items-center gap-2">
+<input class="flex-1 bg-white border-2 border-black rounded-lg py-2.5 pl-3.5 pr-3 text-black placeholder-black/50 font-mono text-xs md:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-nb-magenta shadow-nb-sm" placeholder="Instruct the agent..." type="text"/>
+<button class="w-10 h-10 bg-nb-magenta hover:bg-black text-white rounded-lg border-2 border-black shadow-nb-sm flex items-center justify-center shrink-0 active:translate-x-0.5 active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined font-bold text-lg" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right / Side Panel (Event Summary) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-white rounded-lg border-2 border-black p-5 shadow-nb-lg sticky top-24">
+<div class="flex justify-between items-center border-b-2 border-black pb-3 mb-4">
+<h2 class="font-display text-lg font-black text-black flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-nb-cyan border-2 border-black flex items-center justify-center shadow-nb-sm">
+<span class="material-symbols-outlined text-sm font-black" data-icon="assignment">assignment</span>
+</div>
+          Event Summary
+        </h2>
+<button class="w-8 h-8 rounded bg-white hover:bg-nb-yellow border-2 border-black shadow-nb-sm flex items-center justify-center active:translate-x-0.5 active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="edit">edit</span>
+</button>
+</div>
+<div class="space-y-3.5">
+<!-- Location -->
+<div class="flex items-center gap-3 bg-nb-bg p-2.5 rounded border-2 border-black shadow-nb-sm">
+<div class="w-9 h-9 rounded bg-nb-yellow border-2 border-black flex items-center justify-center text-black shrink-0 font-bold">
+<span class="material-symbols-outlined text-lg" data-icon="location_on">location_on</span>
+</div>
+<div>
+<div class="font-mono text-[10px] font-black text-black/60 uppercase">LOCATION</div>
+<div class="font-display text-sm font-extrabold text-black">Cairo, Egypt</div>
+</div>
+</div>
+<!-- Attendees -->
+<div class="flex items-center gap-3 bg-nb-bg p-2.5 rounded border-2 border-black shadow-nb-sm">
+<div class="w-9 h-9 rounded bg-nb-pink border-2 border-black flex items-center justify-center text-black shrink-0 font-bold">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+</div>
+<div>
+<div class="font-mono text-[10px] font-black text-black/60 uppercase">ATTENDEES</div>
+<div class="font-display text-sm font-extrabold text-black">500 expected</div>
+</div>
+</div>
+<!-- Budget Limit -->
+<div class="bg-nb-bg p-2.5 rounded border-2 border-black shadow-nb-sm">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-9 h-9 rounded bg-nb-cyan border-2 border-black flex items-center justify-center text-black shrink-0 font-bold">
+<span class="material-symbols-outlined text-lg" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="flex-1 flex justify-between items-end">
+<div>
+<div class="font-mono text-[10px] font-black text-black/60 uppercase">BUDGET LIMIT</div>
+<div class="font-mono text-base font-black text-black">$30,000</div>
+</div>
+<span class="font-mono text-xs font-extrabold bg-nb-green border border-black px-1.5 py-0.5 rounded">Allocated 25%</span>
+</div>
+</div>
+<div class="w-full bg-white border-2 border-black h-3 rounded-full overflow-hidden p-0.5">
+<div class="bg-nb-magenta h-full rounded-full border-r border-black" style="width: 25%"></div>
+</div>
+</div>
+</div>
+<!-- Risk Assessment -->
+<div class="mt-5 pt-4 border-t-2 border-black">
+<div class="flex items-center justify-between mb-3">
+<h4 class="font-mono text-xs font-black uppercase text-black tracking-wider">RISK ASSESSMENT</h4>
+<span class="bg-nb-pink border-2 border-black text-black px-2 py-0.5 rounded text-xs font-mono font-black flex items-center gap-1 shadow-nb-sm">
+<span class="material-symbols-outlined text-[14px] font-bold" data-icon="warning">warning</span> 2 Risks
+          </span>
+</div>
+<div class="space-y-2">
+<div class="bg-nb-pink/40 border-2 border-black rounded p-2.5 flex items-start gap-2 shadow-nb-sm">
+<span class="material-symbols-outlined text-nb-magenta font-black text-base shrink-0 mt-0.5" data-icon="priority_high">priority_high</span>
+<span class="font-sans text-xs font-bold text-black leading-snug">Budget tight for AV needs.</span>
+</div>
+<div class="bg-nb-yellow/40 border-2 border-black rounded p-2.5 flex items-start gap-2 shadow-nb-sm">
+<span class="material-symbols-outlined text-black font-black text-base shrink-0 mt-0.5" data-icon="info">info</span>
+<span class="font-sans text-xs font-bold text-black leading-snug">Visa processing times for EU speakers.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-3 py-2 bg-white border-t-2 border-black shadow-[0_-2px_0px_0px_#000]">
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-magenta" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-magenta" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-nb-magenta text-white border-2 border-black shadow-nb rounded-lg px-3 py-1 scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black">AI Planner</span>
+</a>
+<a class="flex flex-col items-center justify-center p-1 text-black font-extrabold hover:text-nb-magenta" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="menu">menu</span>
+<span class="font-mono text-[9px] uppercase tracking-wider font-black mt-0.5">More</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+node_modules/
+dist/
+pgdata/
+*.sqlite
+.pytest_cache/
+backend/.env
+frontend/.env
+.expo/
+mobile/.expo/
