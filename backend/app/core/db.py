@@ -4,11 +4,14 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 import json
+import os
+import ssl
 
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 from app.core.config import get_settings
 
@@ -41,8 +44,21 @@ def json_safe(value: Any) -> Any:
     return json.loads(json_dumps(value))
 
 
+def _ssl_arg(host: str, sslmode: str):
+    hosted = "neon.tech" in host or "supabase.co" in host or "supabase.com" in host
+    if sslmode not in {"require", "verify-ca", "verify-full", "prefer"} and not hosted:
+        return None
+    ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    # Supabase pooler cert chains fail verify on some serverless CA stores (Vercel).
+    if "supabase.co" in host or "supabase.com" in host:
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    return ctx
+
+
 def normalize_database_url(url: str) -> tuple[str, dict]:
-    """Turn Neon/Vercel postgres:// URLs into SQLAlchemy asyncpg DSNs."""
+    """Turn Neon/Vercel/Supabase postgres:// URLs into SQLAlchemy asyncpg DSNs."""
     raw = (url or "").strip()
     if not raw:
         return raw, {}
@@ -56,8 +72,9 @@ def normalize_database_url(url: str) -> tuple[str, dict]:
     sslmode = (query.pop("sslmode", None) or "").lower()
     query.pop("channel_binding", None)
     host = parts.hostname or ""
-    if sslmode in {"require", "verify-ca", "verify-full", "prefer"} or "neon.tech" in host or "supabase.co" in host or "supabase.com" in host:
-        connect_args["ssl"] = True
+    ssl_arg = _ssl_arg(host, sslmode)
+    if ssl_arg is not None:
+        connect_args["ssl"] = ssl_arg
     if "pooler" in host or query.get("pgbouncer") == "true":
         connect_args["statement_cache_size"] = 0
     dsn = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
@@ -76,8 +93,11 @@ def init_engine(url: str | None = None, *, echo: bool = False):
     if connect_args:
         kwargs["connect_args"] = connect_args
     if "sqlite" not in dsn:
-        kwargs["pool_size"] = 5
-        kwargs["max_overflow"] = 10
+        if os.getenv("VERCEL"):
+            kwargs["poolclass"] = NullPool
+        else:
+            kwargs["pool_size"] = 5
+            kwargs["max_overflow"] = 10
     engine = create_async_engine(dsn, **kwargs)
     SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
     return engine

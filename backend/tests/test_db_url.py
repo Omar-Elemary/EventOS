@@ -1,3 +1,5 @@
+import ssl
+
 from app.core.db import normalize_database_url
 
 
@@ -7,7 +9,8 @@ def test_normalize_neon_postgres_url():
     )
     assert dsn.startswith("postgresql+asyncpg://")
     assert "sslmode" not in dsn
-    assert args.get("ssl") is True
+    assert isinstance(args.get("ssl"), ssl.SSLContext)
+    assert args["ssl"].verify_mode == ssl.CERT_REQUIRED
 
 
 def test_normalize_pooler_disables_statement_cache():
@@ -24,5 +27,6 @@ def test_normalize_supabase_pooler_url():
     )
     assert dsn.startswith("postgresql+asyncpg://")
     assert "sslmode" not in dsn
-    assert args.get("ssl") is True
+    assert isinstance(args.get("ssl"), ssl.SSLContext)
+    assert args["ssl"].verify_mode == ssl.CERT_NONE
     assert args.get("statement_cache_size") == 0
