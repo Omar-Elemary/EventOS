@@ -10,7 +10,11 @@
     "backend": {
       "root": "backend",
       "entrypoint": "app.main:app",
-      "maxDuration": 60
+      "functions": {
+        "app/main.py": {
+          "maxDuration": 60
+        }
+      }
     }
   },
   "rewrites": [
