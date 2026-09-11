@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 def _default_database_url() -> str:
     if os.getenv("VERCEL"):
-        return "sqlite+aiosqlite:///./eventos.sqlite"
+        return "sqlite+aiosqlite:////tmp/eventos.sqlite"
     return "postgresql+asyncpg://eventos:eventos@localhost:5432/eventos"
 
 
