@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, Bot, Check, Loader2, MapPin, Send, Sparkles, Users, Wallet } from "lucide-react";
-import { api, type AgentRun, type ChatAction, type ChatOut, type EventRecord, agentsForLatestRun, setActiveEventId } from "../lib/api";
+import { api, apiUrl, type AgentRun, type ChatAction, type ChatOut, type EventRecord, agentsForLatestRun, setActiveEventId } from "../lib/api";
 import { CHIP_HINTS, filledBrief, missionLine, money, phaseCopy } from "../lib/eventDisplay";
 
 type Msg = { role: "user" | "assistant"; text: string; actions?: ChatAction[]; impact?: Record<string, unknown> };
@@ -66,7 +66,7 @@ export function PlannerPage() {
 
   useEffect(() => {
     if (!eventId) return;
-    const es = new EventSource(`/api/events/${eventId}/agents/stream`);
+    const es = new EventSource(apiUrl(`/api/events/${eventId}/agents/stream`));
     const push = (e: MessageEvent) => {
       try {
         const data = JSON.parse(e.data);

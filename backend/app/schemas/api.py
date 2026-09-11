@@ -127,3 +127,25 @@ class DecisionApply(BaseModel):
 class VendorQuery(BaseModel):
     category: str | None = None
     location: str | None = None
+
+
+class AuthSignup(BaseModel):
+    name: str
+    email: str
+    password: str
+
+
+class AuthLogin(BaseModel):
+    email: str
+    password: str
+
+
+class AuthUserOut(BaseModel):
+    id: str
+    email: str
+    name: str
+
+
+class AuthOut(BaseModel):
+    token: str
+    user: AuthUserOut

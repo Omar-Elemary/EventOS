@@ -13,9 +13,21 @@ DEMO_USER_ID = "00000000-0000-0000-0000-000000000001"
 async def seed() -> None:
     init_engine()
     async with session_maker()() as session:
+        from app.services.auth import hash_password
+
         existing = await session.get(User, DEMO_USER_ID)
+        demo_hash = hash_password("demo1234")
         if not existing:
-            session.add(User(id=DEMO_USER_ID, email="demo@eventos.local", name="Jordan Diaz"))
+            session.add(
+                User(
+                    id=DEMO_USER_ID,
+                    email="demo@eventos.local",
+                    name="Jordan Diaz",
+                    password_hash=demo_hash,
+                )
+            )
+        elif not getattr(existing, "password_hash", None):
+            existing.password_hash = demo_hash
 
         vcount = (await session.execute(select(Venue))).scalars().first()
         if not vcount:

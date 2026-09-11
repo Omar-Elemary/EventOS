@@ -13,6 +13,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { api, DEMO_EVENT_ID, getActiveEventId, setActiveEventId, type EventRecord } from "../lib/api";
+import { clearSession, firstName, getSession } from "../lib/auth";
 import { useEffect, useState } from "react";
 
 export function AppShell() {
@@ -139,7 +140,15 @@ export function AppShell() {
             )}
           </div>
         </nav>
-        <button className="flex h-10 w-10 items-center justify-center rounded border-2 border-black bg-white shadow-nb-sm hover:bg-nb-yellow active:translate-x-0.5 active:translate-y-0.5">
+        <button
+          className="flex h-10 items-center justify-center gap-2 rounded border-2 border-black bg-white px-2 shadow-nb-sm hover:bg-nb-yellow active:translate-x-0.5 active:translate-y-0.5 md:px-3"
+          title="Log out"
+          onClick={() => {
+            clearSession();
+            nav("/login", { replace: true });
+          }}
+        >
+          <span className="hidden font-mono text-[10px] font-black uppercase md:inline">{firstName(getSession()?.user)}</span>
           <Bell size={18} />
         </button>
       </header>

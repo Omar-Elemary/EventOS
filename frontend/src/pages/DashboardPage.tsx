@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Bot, Check, MapPin, Plus, ShieldAlert } from "lucide-react";
 import { api, DEMO_EVENT_ID, type AgentRun, type EventRecord, agentsForLatestRun } from "../lib/api";
-import { Badge, EmptyState, ErrorState, Skeleton } from "../components/ui";
+import { Badge, EmptyState, Skeleton } from "../components/ui";
 import { EventCard } from "../components/EventCard";
 import { filledBrief, money, progressFor } from "../lib/eventDisplay";
+import { firstName, getSession } from "../lib/auth";
 
 function greeting() {
   const h = new Date().getHours();
@@ -16,12 +17,11 @@ function greeting() {
 export function DashboardPage() {
   const [events, setEvents] = useState<EventRecord[] | null>(null);
   const [agents, setAgents] = useState<AgentRun[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api<EventRecord[]>("/api/events")
       .then(setEvents)
-      .catch((e) => setError(String(e)));
+      .catch(() => setEvents([]));
   }, []);
 
   useEffect(() => {
@@ -35,7 +35,6 @@ export function DashboardPage() {
       .catch(() => setAgents([]));
   }, [events]);
 
-  if (error) return <ErrorState message={error} />;
   if (!events) {
     return (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -77,7 +76,7 @@ export function DashboardPage() {
             <h1 className="mb-2 font-display text-4xl font-extrabold uppercase leading-[1.05] tracking-tight sm:text-5xl">
               {greeting()},
               <br />
-              Omar
+              {firstName(getSession()?.user)}
             </h1>
             <p className="font-sans text-base font-semibold text-black/80">
               Your AI planning team is working on {events.length} active event{events.length === 1 ? "" : "s"}.

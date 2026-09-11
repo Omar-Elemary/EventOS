@@ -28,10 +28,15 @@ from app.models import (
     ScheduleItem,
     Simulation,
     Task,
+    User,
     Vendor,
     Venue,
 )
 from app.schemas.api import (
+    AuthLogin,
+    AuthOut,
+    AuthSignup,
+    AuthUserOut,
     CandidateAction,
     ChatActionOut,
     ChatIn,
@@ -47,6 +52,13 @@ from app.schemas.api import (
 )
 from app.seed import DEMO_USER_ID
 from app.services.activity import add_activity
+from app.services.auth import (
+    get_optional_user,
+    hash_password,
+    issue_token,
+    user_by_email,
+    verify_password,
+)
 from app.services.copilot import is_prompt_chip, load_state, persist_state, policy, requirements_for_graph, seed_from_title, user_request_from_state, welcome_decision, _confirm_actions
 from app.services.copilot_speak import speak, template_message  # welcome uses template_message; chips are EGP MCQ
 from app.services.event_state import budget_out, decision_out, risk_out, schedule_out, task_out, venue_out, vendor_out
@@ -61,6 +73,42 @@ router = APIRouter(prefix="/api")
 worker = PlannerWorker()
 
 
+def _user_out(user: User) -> AuthUserOut:
+    return AuthUserOut(id=user.id, email=user.email, name=user.name)
+
+
+@router.post("/auth/signup", response_model=AuthOut)
+async def signup(body: AuthSignup, session: AsyncSession = Depends(get_session)):
+    email = (body.email or "").strip().lower()
+    name = (body.name or "").strip() or "Planner"
+    password = body.password or ""
+    if "@" not in email or len(password) < 6:
+        raise HTTPException(400, "Use a valid email and a password of at least 6 characters")
+    if await user_by_email(session, email):
+        raise HTTPException(409, "An account with that email already exists")
+    user = User(email=email, name=name, password_hash=hash_password(password))
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return AuthOut(token=issue_token(user.id), user=_user_out(user))
+
+
+@router.post("/auth/login", response_model=AuthOut)
+async def login(body: AuthLogin, session: AsyncSession = Depends(get_session)):
+    email = (body.email or "").strip().lower()
+    user = await user_by_email(session, email)
+    if not user or not verify_password(body.password or "", user.password_hash):
+        raise HTTPException(401, "Email or password is wrong")
+    return AuthOut(token=issue_token(user.id), user=_user_out(user))
+
+
+@router.get("/auth/me", response_model=AuthUserOut)
+async def me(user: User | None = Depends(get_optional_user)):
+    if not user:
+        raise HTTPException(401, "Sign in required")
+    return _user_out(user)
+
+
 def _event_out(e: Event) -> EventOut:
     out = EventOut.model_validate(e)
     out.copilot_state = load_state(e).model_dump()
@@ -72,9 +120,13 @@ def _event_out(e: Event) -> EventOut:
 
 
 @router.post("/events", response_model=EventOut)
-async def create_event(body: EventCreate, session: AsyncSession = Depends(get_session)):
+async def create_event(
+    body: EventCreate,
+    session: AsyncSession = Depends(get_session),
+    user: User | None = Depends(get_optional_user),
+):
     ev = Event(
-        owner_id=DEMO_USER_ID,
+        owner_id=user.id if user else DEMO_USER_ID,
         name=body.name,
         location=body.location,
         attendees=body.attendees,
@@ -115,8 +167,14 @@ async def create_event(body: EventCreate, session: AsyncSession = Depends(get_se
 
 
 @router.get("/events", response_model=list[EventOut])
-async def list_events(session: AsyncSession = Depends(get_session)):
-    rows = (await session.scalars(select(Event).order_by(Event.created_at.desc()))).all()
+async def list_events(
+    session: AsyncSession = Depends(get_session),
+    user: User | None = Depends(get_optional_user),
+):
+    q = select(Event).order_by(Event.created_at.desc())
+    if user:
+        q = q.where(Event.owner_id == user.id)
+    rows = (await session.scalars(q)).all()
     return [_event_out(r) for r in rows if not r.archived_at]
 
 
@@ -686,7 +744,11 @@ async def list_chat(event_id: str, session: AsyncSession = Depends(get_session))
 
 
 @router.post("/chat", response_model=ChatOut)
-async def chat(body: ChatIn, session: AsyncSession = Depends(get_session)):
+async def chat(
+    body: ChatIn,
+    session: AsyncSession = Depends(get_session),
+    user: User | None = Depends(get_optional_user),
+):
     text = (body.message or "").strip()
     action_id = body.action_id
     event_id = body.event_id
@@ -695,7 +757,7 @@ async def chat(body: ChatIn, session: AsyncSession = Depends(get_session)):
 
     if ev is None and understood.intent in {"plan", "edit", "confirm", "what_if", "decide"}:
         ev = Event(
-            owner_id=DEMO_USER_ID,
+            owner_id=user.id if user else DEMO_USER_ID,
             name=(text or "New event")[:80],
             user_request=text or None,
             status="draft",

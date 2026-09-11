@@ -11,3 +11,5 @@ backend/.env
 frontend/.env
 .expo/
 mobile/.expo/
+.vercel/
+frontend/.vercel/

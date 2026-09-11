@@ -3,19 +3,17 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { api, type EventRecord } from "../lib/api";
 import { EventCard } from "../components/EventCard";
-import { EmptyState, ErrorState, PageKicker, Skeleton } from "../components/ui";
+import { EmptyState, PageKicker, Skeleton } from "../components/ui";
 
 export function EventsPage() {
   const [events, setEvents] = useState<EventRecord[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api<EventRecord[]>("/api/events")
       .then(setEvents)
-      .catch((e) => setError(String(e)));
+      .catch(() => setEvents([]));
   }, []);
 
-  if (error) return <ErrorState message={error} />;
   if (!events) {
     return (
       <div className="grid gap-4 md:grid-cols-2">

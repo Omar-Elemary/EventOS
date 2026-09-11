@@ -17,6 +17,7 @@ class User(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     email: Mapped[str] = mapped_column(String(255), unique=True)
     name: Mapped[str] = mapped_column(String(255), default="Demo User")
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     events: Mapped[list["Event"]] = relationship(back_populates="owner")
 

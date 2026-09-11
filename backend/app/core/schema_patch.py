@@ -90,7 +90,13 @@ def _add_columns(sync_conn, table: str, columns: dict[str, str]) -> None:
         sync_conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
 
 
+USER_COLUMNS = {
+    "password_hash": "VARCHAR(255)",
+}
+
+
 def ensure_event_state_columns(sync_conn) -> None:
+    _add_columns(sync_conn, "users", USER_COLUMNS)
     _add_columns(sync_conn, "events", EVENT_COLUMNS)
     _add_columns(sync_conn, "budgets", BUDGET_COLUMNS)
     _add_columns(sync_conn, "budget_items", BUDGET_ITEM_COLUMNS)

@@ -1,14 +1,39 @@
-const API = import.meta.env.VITE_API_URL ?? "";
+import { getToken } from "./auth";
+
+const API = String(import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
+export function apiUrl(path: string): string {
+  return `${API}${path}`;
+}
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API}${path}`, {
+  const token = getToken();
+  const res = await fetch(apiUrl(path), {
     ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers || {}),
+    },
   });
+  const text = await res.text();
   if (!res.ok) {
-    throw new Error(`${res.status} ${res.statusText}`);
+    let detail = `${res.status} ${res.statusText}`.trim();
+    try {
+      const parsed = JSON.parse(text) as { detail?: unknown };
+      if (typeof parsed.detail === "string") detail = parsed.detail;
+    } catch {
+      if (res.status === 404 && path.startsWith("/api")) {
+        detail =
+          "API not found (404). This static Vercel site has no FastAPI. Use the local app at http://127.0.0.1:5173, or rebuild with VITE_API_URL set to a hosted API.";
+      }
+    }
+    throw new Error(detail);
   }
-  return res.json() as Promise<T>;
+  if (text.trimStart().startsWith("<")) {
+    throw new Error("API is not configured. Set VITE_API_URL to the FastAPI server.");
+  }
+  return JSON.parse(text) as T;
 }
 
 export type EventRecord = {

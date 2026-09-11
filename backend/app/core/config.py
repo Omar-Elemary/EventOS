@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     contingency_rate: float = 0.10
     demo_user_email: str = "demo@eventos.local"
     cors_origins: str = "*"
+    auth_secret: str = "eventos-dev-auth-secret"
 
     def cors_origin_list(self) -> list[str]:
         raw = (self.cors_origins or "*").strip()
