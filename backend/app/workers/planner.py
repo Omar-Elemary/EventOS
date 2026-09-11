@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import uuid
 from typing import Any
 
@@ -107,7 +108,7 @@ class PlannerWorker:
         if extra.get("requirements") and isinstance(extra["requirements"], dict):
             initial["requirements"] = EventRequirements.model_validate(extra["requirements"])
         req_obj = initial.get("requirements")
-        if isinstance(req_obj, EventRequirements) and req_obj.location and req_obj.attendees:
+        if not os.getenv("VERCEL") and isinstance(req_obj, EventRequirements) and req_obj.location and req_obj.attendees:
             await prefetch_evidence(deps, req_obj, event_id=event_id)
         log.info("plan_start", run_id=run_id, event_id=event_id)
         result = await graph.ainvoke(initial)

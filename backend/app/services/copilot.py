@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Copilot policy: LLM talks; Python owns ASK / CONFIRM / RUN.
 import re
 from typing import Any
 
@@ -139,6 +138,39 @@ def persist_state(event: Event, state: CopilotState) -> None:
     else:
         event.currency = normalize_currency(event.currency)
     event.user_request = user_request_from_state(state)
+
+
+def _brief_keys_filled(req: dict[str, Any] | None) -> int:
+    data = req or {}
+    n = 0
+    if data.get("location"):
+        n += 1
+    if data.get("attendees"):
+        n += 1
+    if data.get("duration_days"):
+        n += 1
+    budget = data.get("budget")
+    if budget not in (None, "", 0, 0.0):
+        n += 1
+    if data.get("event_type"):
+        n += 1
+    return n
+
+
+def adopt_client_state(server: CopilotState, client: dict[str, Any] | None) -> CopilotState:
+    """Keep the brief when serverless SQLite lost the event row."""
+    if not client or not isinstance(client, dict):
+        return server
+    try:
+        incoming = CopilotState.model_validate(client)
+    except Exception:
+        return server
+    if _brief_keys_filled(server.requirements) >= _brief_keys_filled(incoming.requirements):
+        if server.phase not in {"intake", ""} or _brief_keys_filled(server.requirements):
+            return server
+    if _brief_keys_filled(incoming.requirements) or incoming.phase not in {"intake", ""}:
+        return incoming
+    return server
 
 
 def hydrate_from_event(event: Event, state: CopilotState | None = None) -> CopilotState:
@@ -467,9 +499,17 @@ def fill_prompt_answer(state: CopilotState, understood: UnderstoodMessage) -> Co
             req["budget"] = float(n)
             req["currency"] = DEFAULT_CURRENCY
     elif field == "location" and not req.get("location"):
-        loc = ent.location or raw.title()
-        if loc and loc.lower() not in CHIP_ECHO:
-            req["location"] = loc
+        if re.fullmatch(r"[\d,.\s]+", raw):
+            n = _first_number(raw)
+            if n and 15 <= n <= 20000 and not req.get("attendees"):
+                req["attendees"] = int(n)
+            elif n and n > 20000 and (req.get("budget") is None or float(req.get("budget") or 0) <= 0):
+                req["budget"] = float(n)
+                req["currency"] = DEFAULT_CURRENCY
+        else:
+            loc = ent.location or raw.title()
+            if loc and loc.lower() not in CHIP_ECHO:
+                req["location"] = loc
     elif field == "preferred_date" and not req.get("preferred_date") and not req.get("date_note"):
         req["date_note"] = raw
         req["preferred_date"] = raw

@@ -85,6 +85,8 @@ export type ChatOut = {
   policy?: string | null;
   missing_fields?: string[];
   actions?: ChatAction[];
+  event_id?: string | null;
+  copilot_state?: EventRecord["copilot_state"];
 };
 
 export type AgentRun = {

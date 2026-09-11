@@ -78,6 +78,8 @@ export type ChatOut = {
   policy?: string | null;
   missing_fields?: string[];
   actions?: ChatAction[];
+  event_id?: string | null;
+  copilot_state?: EventRecord["copilot_state"];
 };
 
 export type AgentRun = {
@@ -108,6 +110,51 @@ export function agentsForLatestRun(rows: AgentRun[]): AgentRun[] {
 
 export const DEMO_EVENT_ID = "11111111-1111-1111-1111-111111111111";
 const ACTIVE_EVENT_KEY = "eventos.activeEventId";
+
+function copilotCacheKey(eventId: string) {
+  return `eventos.copilot.${eventId}`;
+}
+
+function eventCacheKey(eventId: string) {
+  return `eventos.event.${eventId}`;
+}
+
+export function readCachedCopilot(eventId: string): EventRecord["copilot_state"] | null {
+  try {
+    const raw = sessionStorage.getItem(copilotCacheKey(eventId));
+    return raw ? (JSON.parse(raw) as EventRecord["copilot_state"]) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedCopilot(eventId: string, state: EventRecord["copilot_state"] | null | undefined) {
+  if (!eventId || !state) return;
+  try {
+    sessionStorage.setItem(copilotCacheKey(eventId), JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readCachedEvent(eventId: string): EventRecord | null {
+  try {
+    const raw = sessionStorage.getItem(eventCacheKey(eventId));
+    return raw ? (JSON.parse(raw) as EventRecord) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedEvent(ev: EventRecord | null | undefined) {
+  if (!ev?.id) return;
+  try {
+    sessionStorage.setItem(eventCacheKey(ev.id), JSON.stringify(ev));
+    if (ev.copilot_state) writeCachedCopilot(ev.id, ev.copilot_state);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function getActiveEventId(): string {
   try {
@@ -155,5 +202,6 @@ export async function createBlankEvent(name: string, note?: string): Promise<Eve
     }),
   });
   setActiveEventId(ev.id);
+  writeCachedEvent(ev);
   return ev;
 }

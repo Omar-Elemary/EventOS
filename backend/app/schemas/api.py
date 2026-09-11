@@ -77,6 +77,7 @@ class ChatIn(BaseModel):
     message: str = ""
     event_id: str | None = None
     action_id: str | None = None
+    copilot_state: dict[str, Any] | None = None
 
 
 class ChatActionOut(BaseModel):
@@ -94,6 +95,8 @@ class ChatOut(BaseModel):
     policy: str | None = None
     missing_fields: list[str] = Field(default_factory=list)
     actions: list[ChatActionOut] = Field(default_factory=list)
+    event_id: str | None = None
+    copilot_state: dict[str, Any] | None = None
 
 
 class SimulateIn(BaseModel):

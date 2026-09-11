@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import os
 
 from sqlalchemy import select
 
@@ -28,6 +29,10 @@ async def seed() -> None:
             )
         elif not getattr(existing, "password_hash", None):
             existing.password_hash = demo_hash
+
+        if os.getenv("VERCEL"):
+            await session.commit()
+            return
 
         vcount = (await session.execute(select(Venue))).scalars().first()
         if not vcount:

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { api } from "../lib/api";
+import { api, readCachedCopilot } from "../lib/api";
 import { Badge, BrutalButton, EmptyState, ErrorState, PageKicker, Skeleton } from "../components/ui";
 
 type Decision = {
@@ -35,7 +35,12 @@ export function DecisionsPage() {
     });
     await api("/api/chat", {
       method: "POST",
-      body: JSON.stringify({ event_id: eventId, action_id: optionId, message: "" }),
+      body: JSON.stringify({
+        event_id: eventId,
+        action_id: optionId,
+        message: "",
+        copilot_state: eventId ? readCachedCopilot(eventId) : null,
+      }),
     });
     await load();
   }

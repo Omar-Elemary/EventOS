@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, Bot, Check, Loader2, MapPin, Send, Sparkles, Users, Wallet } from "lucide-react";
-import { api, apiUrl, type AgentRun, type ChatAction, type ChatOut, type EventRecord, agentsForLatestRun, setActiveEventId } from "../lib/api";
+import { api, apiUrl, type AgentRun, type ChatAction, type ChatOut, type EventRecord, agentsForLatestRun, readCachedCopilot, readCachedEvent, setActiveEventId, writeCachedCopilot, writeCachedEvent } from "../lib/api";
 import { CHIP_HINTS, filledBrief, missionLine, money, phaseCopy } from "../lib/eventDisplay";
 
 type Msg = { role: "user" | "assistant"; text: string; actions?: ChatAction[]; impact?: Record<string, unknown> };
@@ -41,6 +41,7 @@ export function PlannerPage() {
       api<{ role: string; content: string; actions?: ChatAction[] | null; phase?: string | null }[]>(`/api/events/${eventId}/chat`),
     ]);
     setEvent(ev);
+    writeCachedEvent(ev);
     const st = ev.copilot_state;
     applyChatRows(rows);
     if (st?.phase) setPhase(st.phase);
@@ -50,7 +51,11 @@ export function PlannerPage() {
   useEffect(() => {
     if (!eventId) return;
     setActiveEventId(eventId);
-    refreshPlanner().catch(() => setEvent(null));
+    refreshPlanner().catch(() => {
+      const cached = readCachedEvent(eventId);
+      if (cached) setEvent(cached);
+      else setEvent(null);
+    });
   }, [eventId]);
 
   useEffect(() => {
@@ -103,12 +108,35 @@ export function PlannerPage() {
     try {
       const res = await api<ChatOut>("/api/chat", {
         method: "POST",
-        body: JSON.stringify({ message: promptChip ? "" : text, event_id: eventId, action_id: actionId }),
+        body: JSON.stringify({
+          message: promptChip ? "" : text,
+          event_id: eventId,
+          action_id: actionId,
+          copilot_state: event?.copilot_state || readCachedCopilot(eventId),
+        }),
       });
       setMessages((m) => [...m, { role: "assistant", text: res.reply, actions: res.actions, impact: (res.simulation as { impact?: Record<string, unknown> } | null)?.impact }]);
       setActions(res.actions || []);
       if (res.phase) setPhase(res.phase);
-      api<EventRecord>(`/api/events/${eventId}`).then(setEvent).catch(() => {});
+      if (res.copilot_state) writeCachedCopilot(eventId, res.copilot_state);
+      api<EventRecord>(`/api/events/${eventId}`)
+        .then((ev) => {
+          setEvent(ev);
+          writeCachedEvent(ev);
+        })
+        .catch(() => {
+          if (res.copilot_state) {
+            setEvent((prev) => {
+              const next = {
+                ...(prev || readCachedEvent(eventId) || { id: eventId }),
+                id: eventId,
+                copilot_state: res.copilot_state,
+              } as EventRecord;
+              writeCachedEvent(next);
+              return next;
+            });
+          }
+        });
     } catch (err) {
       setMessages((m) => [...m, { role: "assistant", text: `Request failed: ${err}` }]);
     } finally {

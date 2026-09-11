@@ -34,3 +34,12 @@ def test_alexandria_music_brief_is_plan():
 def test_typed_brief_with_attendees_is_plan():
     c = heuristic_intent("music , alexendria egypt, 400 attendee, 2 days ,budget 2000$")
     assert c.intent == "plan"
+
+
+def test_lone_number_is_attendees():
+    from app.services.understand import extract_entities, heuristic_understand
+
+    ent = extract_entities("500")
+    assert ent.attendees == 500
+    understood = heuristic_understand("500")
+    assert understood.entities.attendees == 500

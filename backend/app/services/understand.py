@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 
 from app.domain.models import ExtractedEntities, UnderstoodMessage
@@ -38,6 +39,12 @@ def extract_entities(text: str) -> ExtractedEntities:
     m = re.search(r"(\d[\d,]*)\s*(attendees?|people|guests?|pax|person)", t)
     if m:
         attendees = int(m.group(1).replace(",", ""))
+    if attendees is None:
+        m = re.fullmatch(r"\s*(\d[\d,]*)\s*", t)
+        if m:
+            n = int(m.group(1).replace(",", ""))
+            if 15 <= n <= 20000:
+                attendees = n
     days = None
     m = re.search(r"(\d+)\s*-?\s*days?", t)
     if m:
@@ -191,15 +198,23 @@ def _validate_entities(ent: ExtractedEntities, raw: str = "") -> ExtractedEntiti
 
 async def understand_message(text: str, *, action_id: str | None = None) -> UnderstoodMessage:
     fallback = heuristic_understand(text, action_id=action_id)
+    fallback.entities = _validate_entities(fallback.entities, fallback.raw)
     if action_id:
-        fallback.entities = _validate_entities(fallback.entities, fallback.raw)
+        return fallback
+    if CONFIRM_RE.match((text or "").strip()):
+        return fallback
+    # Serverless chat must not wait on Groq; heuristics already extract briefs and numbers.
+    if os.getenv("VERCEL"):
         return fallback
     llm = get_llm_provider()
     if getattr(llm, "name", "") == "mock":
-        fallback.entities = _validate_entities(fallback.entities, fallback.raw)
         return fallback
-    if CONFIRM_RE.match((text or "").strip()):
-        fallback.entities = _validate_entities(fallback.entities, fallback.raw)
+    dumped = fallback.entities.model_dump()
+    has_facts = any(
+        dumped.get(k) is not None
+        for k in ("location", "attendees", "duration_days", "budget", "format", "overnight")
+    )
+    if has_facts and looks_like_event_brief((text or "").lower()):
         return fallback
     try:
         view = await llm.complete_structured(

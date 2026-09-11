@@ -15,6 +15,7 @@ from app.graph.deps import GraphDeps
 from app.graph.routing import pick_next_agent
 from app.graph.wrapper import run_agent_node
 from app.llm.base import LLMError, LLMMessage
+import os
 
 
 def _coerce(model, raw):
@@ -98,7 +99,7 @@ async def _logic(state: EventState, deps: GraphDeps) -> dict:
         score -= {"critical": 35, "high": 20, "medium": 8, "low": 3}.get(i.severity.value, 5)
     score = max(0, min(100, score))
 
-    if getattr(deps.llm, "name", "") != "mock":
+    if getattr(deps.llm, "name", "") != "mock" and not os.getenv("VERCEL"):
         try:
             view = await deps.llm.complete_structured(
                 CriticLLMView,

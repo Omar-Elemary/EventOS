@@ -36,15 +36,22 @@ def verify_password(password: str, stored: str | None) -> bool:
     return hmac.compare_digest(digest.hex(), digest_hex)
 
 
-def issue_token(user_id: str) -> str:
+def issue_token(user_id: str, email: str = "", name: str = "") -> str:
     payload = base64.urlsafe_b64encode(
-        json.dumps({"sub": user_id, "exp": time.time() + 60 * 60 * 24 * 30}).encode()
+        json.dumps(
+            {
+                "sub": user_id,
+                "email": email,
+                "name": name,
+                "exp": time.time() + 60 * 60 * 24 * 30,
+            }
+        ).encode()
     ).decode()
     sig = hmac.new(get_settings().auth_secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
     return f"{payload}.{sig}"
 
 
-def parse_token(token: str) -> str | None:
+def parse_token_claims(token: str) -> dict | None:
     if not token or "." not in token:
         return None
     payload, sig = token.rsplit(".", 1)
@@ -56,6 +63,13 @@ def parse_token(token: str) -> str | None:
     except (ValueError, json.JSONDecodeError):
         return None
     if float(raw.get("exp") or 0) < time.time():
+        return None
+    return raw if isinstance(raw, dict) else None
+
+
+def parse_token(token: str) -> str | None:
+    raw = parse_token_claims(token)
+    if not raw:
         return None
     sub = raw.get("sub")
     return str(sub) if sub else None
@@ -71,7 +85,27 @@ async def get_optional_user(
     user_id = parse_token(header.split(" ", 1)[1].strip())
     if not user_id:
         return None
-    return await session.get(User, user_id)
+    user = await session.get(User, user_id)
+    if user:
+        return user
+    claims = parse_token_claims(header.split(" ", 1)[1].strip()) or {}
+    email = str(claims.get("email") or "").strip().lower() or f"{user_id[:8]}@restored.eventos.local"
+    existing = await user_by_email(session, email)
+    if existing:
+        return existing
+    user = User(
+        id=user_id,
+        email=email,
+        name=str(claims.get("name") or "Planner"),
+    )
+    session.add(user)
+    try:
+        await session.commit()
+        await session.refresh(user)
+    except Exception:
+        await session.rollback()
+        return await session.get(User, user_id)
+    return user
 
 
 async def get_current_user(user: User | None = Depends(get_optional_user)) -> User:

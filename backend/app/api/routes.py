@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sse_starlette.sse import EventSourceResponse
 
+from app.core.config import get_settings
 from app.core.db import get_session
 from app.models import (
     ActivityLog,
@@ -59,7 +61,18 @@ from app.services.auth import (
     user_by_email,
     verify_password,
 )
-from app.services.copilot import is_prompt_chip, load_state, persist_state, policy, requirements_for_graph, seed_from_title, user_request_from_state, welcome_decision, _confirm_actions
+from app.services.copilot import (
+    adopt_client_state,
+    is_prompt_chip,
+    load_state,
+    persist_state,
+    policy,
+    requirements_for_graph,
+    seed_from_title,
+    user_request_from_state,
+    welcome_decision,
+    _confirm_actions,
+)
 from app.services.copilot_speak import speak, template_message  # welcome uses template_message; chips are EGP MCQ
 from app.services.event_state import budget_out, decision_out, risk_out, schedule_out, task_out, venue_out, vendor_out
 from app.services.persistence import bump_version, get_event_loaded
@@ -71,6 +84,14 @@ from app.workers.planner import PlannerWorker, run_graph_memory
 
 router = APIRouter(prefix="/api")
 worker = PlannerWorker()
+
+
+async def _kick_plan(run_id: str) -> None:
+    """Vercel kills fire-and-forget tasks when the request ends, so run inline there."""
+    if os.getenv("VERCEL"):
+        await worker.safe_run(run_id)
+    else:
+        asyncio.create_task(worker.safe_run(run_id))
 
 
 def _user_out(user: User) -> AuthUserOut:
@@ -90,7 +111,7 @@ async def signup(body: AuthSignup, session: AsyncSession = Depends(get_session))
     session.add(user)
     await session.commit()
     await session.refresh(user)
-    return AuthOut(token=issue_token(user.id), user=_user_out(user))
+    return AuthOut(token=issue_token(user.id, user.email, user.name), user=_user_out(user))
 
 
 @router.post("/auth/login", response_model=AuthOut)
@@ -99,7 +120,7 @@ async def login(body: AuthLogin, session: AsyncSession = Depends(get_session)):
     user = await user_by_email(session, email)
     if not user or not verify_password(body.password or "", user.password_hash):
         raise HTTPException(401, "Email or password is wrong")
-    return AuthOut(token=issue_token(user.id), user=_user_out(user))
+    return AuthOut(token=issue_token(user.id, user.email, user.name), user=_user_out(user))
 
 
 @router.get("/auth/me", response_model=AuthUserOut)
@@ -322,7 +343,7 @@ async def start_plan(event_id: str, body: PlanRequest | None = None, session: As
         await session.commit()
     extra["data_mode"] = ev.data_mode or "mock"
     run_id = await worker.enqueue(event_id, force_over_budget=body.force_over_budget, extra=extra)
-    asyncio.create_task(worker.safe_run(run_id))
+    await _kick_plan(run_id)
     return PlanAccepted(run_id=run_id, status="queued")
 
 
@@ -708,7 +729,7 @@ async def apply_simulation(event_id: str, sim_id: str, session: AsyncSession = D
     }
     await session.commit()
     run_id = await worker.enqueue(event_id, extra=extra)
-    asyncio.create_task(worker.safe_run(run_id))
+    await _kick_plan(run_id)
     return {"ok": True, "run_id": run_id, "event_state_version": ev.event_state_version}
 
 
@@ -743,6 +764,24 @@ async def list_chat(event_id: str, session: AsyncSession = Depends(get_session))
     ]
 
 
+async def _ensure_owner(session: AsyncSession, user: User | None) -> User:
+    if user:
+        return user
+    demo = await session.get(User, DEMO_USER_ID)
+    if demo:
+        return demo
+    demo = User(
+        id=DEMO_USER_ID,
+        email="demo@eventos.local",
+        name="Jordan Diaz",
+        password_hash=hash_password("demo1234"),
+    )
+    session.add(demo)
+    await session.commit()
+    await session.refresh(demo)
+    return demo
+
+
 @router.post("/chat", response_model=ChatOut)
 async def chat(
     body: ChatIn,
@@ -754,10 +793,23 @@ async def chat(
     event_id = body.event_id
     ev = await session.get(Event, event_id) if event_id else None
     understood = await understand_message(text, action_id=action_id)
+    owner = await _ensure_owner(session, user)
 
-    if ev is None and understood.intent in {"plan", "edit", "confirm", "what_if", "decide"}:
+    if ev is None and event_id:
         ev = Event(
-            owner_id=user.id if user else DEMO_USER_ID,
+            id=event_id,
+            owner_id=owner.id,
+            name=(text or "New event")[:80],
+            user_request=text or None,
+            status="draft",
+            event_state_version=0,
+        )
+        session.add(ev)
+        await session.commit()
+        await session.refresh(ev)
+    elif ev is None and understood.intent in {"plan", "edit", "confirm", "what_if", "decide"}:
+        ev = Event(
+            owner_id=owner.id,
             name=(text or "New event")[:80],
             user_request=text or None,
             status="draft",
@@ -779,10 +831,11 @@ async def chat(
         )
         await session.commit()
 
-    state = load_state(ev)
+    state = adopt_client_state(load_state(ev), body.copilot_state)
     decision = policy(state, understood, event=ev)
     run_id = None
     simulation = None
+    used_plan_reply = False
 
     if decision.policy == "RUN" and ev:
         persist_state(ev, decision.state)
@@ -799,7 +852,19 @@ async def chat(
             extra["replan_mode"] = pending["replan_mode"]
         try:
             run_id = await worker.enqueue(event_id, extra=extra)
-            asyncio.create_task(worker.safe_run(run_id))
+            await _kick_plan(run_id)
+            if os.getenv("VERCEL"):
+                await session.refresh(ev)
+                state = load_state(ev)
+                decision.state = state
+                decision.phase = state.phase
+                decision.actions = list(state.available_actions)
+                decision.missing_fields = list(state.missing_fields or [])
+                if state.phase == "done":
+                    decision.policy = "DONE"
+                elif state.phase == "decide":
+                    decision.policy = "DECIDE"
+                used_plan_reply = True
         except Exception:
             import structlog
 
@@ -813,6 +878,7 @@ async def chat(
             persist_state(ev, decision.state)
             ev.status = "draft"
             await session.commit()
+            used_plan_reply = False
     elif decision.policy == "SIMULATE" and ev:
         patch = decision.simulate_patch or {}
         sim_body = SimulateIn(
@@ -849,6 +915,30 @@ async def chat(
         persist_state(ev, decision.state)
         await session.commit()
 
+    if used_plan_reply and event_id:
+        last = (
+            await session.scalars(
+                select(ChatMessage)
+                .where(ChatMessage.event_id == event_id, ChatMessage.role == "assistant")
+                .order_by(ChatMessage.created_at.desc())
+            )
+        ).first()
+        if last:
+            extra = last.extra or {}
+            raw_actions = extra.get("actions") or [a.model_dump() for a in decision.actions]
+            return ChatOut(
+                reply=last.content,
+                intent=understood.intent,
+                run_id=run_id,
+                simulation=simulation,
+                phase=extra.get("phase") or decision.phase,
+                policy=extra.get("policy") or decision.policy,
+                missing_fields=decision.missing_fields,
+                actions=[ChatActionOut.model_validate(a) for a in raw_actions],
+                event_id=event_id,
+                copilot_state=decision.state.model_dump(mode="json") if ev else None,
+            )
+
     message = await speak(decision)
     actions = [a.model_dump() for a in decision.actions]
     await _save_assistant(
@@ -866,6 +956,8 @@ async def chat(
         policy=decision.policy,
         missing_fields=decision.missing_fields,
         actions=[ChatActionOut.model_validate(a) for a in actions],
+        event_id=event_id,
+        copilot_state=decision.state.model_dump(mode="json") if ev else None,
     )
 
 
@@ -883,7 +975,15 @@ async def _save_assistant(
 
 @router.get("/health")
 async def health():
-    return {"ok": True, "time": datetime.now(timezone.utc).isoformat()}
+    settings = get_settings()
+    dsn = (settings.database_url or "").lower()
+    engine_kind = "postgres" if "postgres" in dsn else "sqlite"
+    return {
+        "ok": True,
+        "time": datetime.now(timezone.utc).isoformat(),
+        "db": engine_kind,
+        "vercel": bool(os.getenv("VERCEL")),
+    }
 
 
 @router.get("/health/ready")

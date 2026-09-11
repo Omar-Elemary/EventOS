@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Protocol
 
@@ -50,5 +51,5 @@ def build_deps(
         llm=get_llm_provider(),
         sink=sink or NullSink(),
         research=research or InMemoryResearchMemory(),
-        max_iterations=settings.max_iterations,
+        max_iterations=2 if os.getenv("VERCEL") else settings.max_iterations,
     )

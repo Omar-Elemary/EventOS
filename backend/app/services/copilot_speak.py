@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 
 from app.domain.models import CopilotSpeech, PolicyDecision
@@ -89,7 +90,7 @@ def template_message(decision: PolicyDecision) -> str:
 async def speak(decision: PolicyDecision) -> str:
     fallback = template_message(decision)
     llm = get_llm_provider()
-    if getattr(llm, "name", "") == "mock":
+    if getattr(llm, "name", "") == "mock" or os.getenv("VERCEL"):
         return fallback
     try:
         payload = {

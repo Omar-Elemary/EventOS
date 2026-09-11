@@ -20,6 +20,7 @@ export function PlannerScreen() {
   const eventId: string = route.params?.eventId || DEMO_EVENT_ID;
   const scrollRef = useRef<ScrollView>(null);
   const copilotFetched = useRef(false);
+  const copilotStateRef = useRef<EventRecord["copilot_state"] | null>(null);
   const [event, setEvent] = useState<EventRecord | null>(null);
   const [messages, setMessages] = useState<Msg[]>([
     {
@@ -41,6 +42,7 @@ export function PlannerScreen() {
       ),
     ]);
     setEvent(ev);
+    if (ev.copilot_state) copilotStateRef.current = ev.copilot_state;
     if (ev.copilot_state?.phase) setPhase(ev.copilot_state.phase);
     if (ev.copilot_state?.available_actions?.length) setActions(ev.copilot_state.available_actions);
     if (rows.length) {
@@ -85,11 +87,17 @@ export function PlannerScreen() {
     try {
       const res = await api<ChatOut>("/api/chat", {
         method: "POST",
-        body: JSON.stringify({ message: trimmed, event_id: eventId, action_id: actionId }),
+        body: JSON.stringify({
+          message: trimmed,
+          event_id: eventId,
+          action_id: actionId,
+          copilot_state: copilotStateRef.current,
+        }),
       });
       setMessages((m) => [...m, { role: "assistant", text: res.reply, actions: res.actions }]);
       setActions(res.actions || []);
       if (res.phase) setPhase(res.phase);
+      if (res.copilot_state) copilotStateRef.current = res.copilot_state;
     } catch (err) {
       setMessages((m) => [...m, { role: "assistant", text: `Request failed: ${err}` }]);
     } finally {

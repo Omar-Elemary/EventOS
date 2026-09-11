@@ -7,6 +7,7 @@ from app.llm.base import LLMError, LLMMessage
 from app.llm.mock import _parse_requirements
 from app.services.intake import extract_specialized, missing_critical, missing_specialized, parse_preferred_date
 from app.services.understand import extract_entities
+import os
 
 
 CRITICAL = ("location", "attendees", "duration_days", "budget")
@@ -46,7 +47,7 @@ async def _logic(state: EventState, deps: GraphDeps) -> dict:
         req = existing
     else:
         try:
-            if getattr(deps.llm, "name", "") == "mock":
+            if getattr(deps.llm, "name", "") == "mock" or os.getenv("VERCEL"):
                 req = EventRequirements.model_validate(_parse_requirements(text))
             else:
                 req = await deps.llm.complete_structured(

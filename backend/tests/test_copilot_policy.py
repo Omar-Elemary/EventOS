@@ -261,3 +261,28 @@ def test_requirements_for_graph_json_serializable():
     json.dumps(payload)
     assert isinstance(payload["preferred_date"], str)
     EventRequirements.model_validate(payload)
+
+
+def test_lone_number_does_not_become_location():
+    from app.domain.models import CopilotState
+    from app.services.copilot import fill_prompt_answer
+    from app.services.understand import heuristic_understand
+
+    state = CopilotState(prompt_field="location", requirements={})
+    filled = fill_prompt_answer(state, heuristic_understand("500"))
+    assert filled.requirements.get("location") is None
+    assert filled.requirements.get("attendees") == 500
+
+
+def test_adopt_client_state_keeps_brief_when_server_empty():
+    from app.domain.models import CopilotState
+    from app.services.copilot import adopt_client_state, empty_state
+
+    client = CopilotState(
+        phase="confirm",
+        requirements={"location": "Hurghada", "attendees": 80, "duration_days": 1, "budget": 40000, "currency": "EGP"},
+    ).model_dump()
+    adopted = adopt_client_state(empty_state(), client)
+    assert adopted.requirements["location"] == "Hurghada"
+    assert adopted.requirements["attendees"] == 80
+    assert adopted.phase == "confirm"

@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,14 +43,15 @@ async def lifespan(app: FastAPI):
             import structlog
 
             structlog.get_logger().exception("seed_failed")
-        try:
-            from app.api.routes import worker
+        if not os.getenv("VERCEL"):
+            try:
+                from app.api.routes import worker
 
-            await worker.resume_unfinished()
-        except Exception:
-            import structlog
+                await worker.resume_unfinished()
+            except Exception:
+                import structlog
 
-            structlog.get_logger().exception("resume_jobs_failed")
+                structlog.get_logger().exception("resume_jobs_failed")
     yield
     await close_http_client()
 
